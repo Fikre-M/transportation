@@ -1,78 +1,101 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
+// Handle environment variables for both Vite and Jest
+const getEnv = () => {
+  // For Jest/Node environment
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env;
+  }
+  // For Vite/browser environment
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env;
+  }
+  // Fallback
+  return {};
+};
+
+const env = getEnv();
+
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: env.VITE_API_URL || 'http://localhost:8000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    // Add auth token to requests if available
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// Check if api is properly initialized before using interceptors
+if (!api) {
+  throw new Error('Failed to initialize axios instance');
+}
 
-// Response interceptor
-api.interceptors.response.use(
-  (response) => {
-    // Handle successful responses
-    return response.data;
-  },
-  (error) => {
-    // Handle errors
-    const { response } = error;
-    let errorMessage = 'An unexpected error occurred';
-    
-    if (response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      const { status, data } = response;
-      
-      if (status === 401) {
-        // Unauthorized - token expired or invalid
-        errorMessage = 'Your session has expired. Please log in again.';
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-      } else if (status === 403) {
-        // Forbidden - user doesn't have permission
-        errorMessage = 'You do not have permission to perform this action';
-      } else if (status === 404) {
-        // Not found
-        errorMessage = 'The requested resource was not found';
-      } else if (status === 422) {
-        // Validation error
-        errorMessage = data.message || 'Validation failed';
-        return Promise.reject(data);
-      } else if (status >= 500) {
-        // Server error
-        errorMessage = 'A server error occurred. Please try again later.';
-      } else if (data?.message) {
-        errorMessage = data.message;
+// Request interceptor
+if (api.interceptors) {
+  api.interceptors.request.use(
+    (config) => {
+      // Add auth token to requests if available
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-    } else if (error.request) {
-      // The request was made but no response was received
-      errorMessage = 'No response from server. Please check your connection.';
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    
-    // Show error toast
-    toast.error(errorMessage);
-    
-    return Promise.reject(error);
-  }
-);
+  );
+
+  // Response interceptor
+  api.interceptors.response.use(
+    (response) => {
+      // Handle successful responses
+      return response.data;
+    },
+    (error) => {
+      // Handle errors
+      const { response } = error;
+      let errorMessage = 'An unexpected error occurred';
+      
+      if (response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        const { status, data } = response;
+        
+        if (status === 401) {
+          // Unauthorized - token expired or invalid
+          errorMessage = 'Your session has expired. Please log in again.';
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        } else if (status === 403) {
+          // Forbidden - user doesn't have permission
+          errorMessage = 'You do not have permission to perform this action';
+        } else if (status === 404) {
+          // Not found
+          errorMessage = 'The requested resource was not found';
+        } else if (status === 422) {
+          // Validation error
+          errorMessage = data.message || 'Validation failed';
+          return Promise.reject(data);
+        } else if (status >= 500) {
+          // Server error
+          errorMessage = 'A server error occurred. Please try again later.';
+        } else if (data?.message) {
+          errorMessage = data.message;
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = 'No response from server. Please check your connection.';
+      }
+      
+      // Show error toast
+      toast.error(errorMessage);
+      
+      return Promise.reject(error);
+    }
+  );
+}
 
 // API methods
 export const auth = {

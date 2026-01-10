@@ -146,6 +146,7 @@ export const WebSocketProvider = ({ children }) => {
       }
     };
   }, [token, isAuthenticated, getReconnectDelay, handleMessage, processQueue, sendPing, showError, showWarning]);
+  
 
   // Reconnect when authentication state changes
   useEffect(() => {

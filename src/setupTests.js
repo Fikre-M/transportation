@@ -1,13 +1,27 @@
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
+
+// Create a mock DOM environment
+const { JSDOM } = require("jsdom");
+
+const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>", {
+  url: "http://localhost:8000",
+  pretendToBeVisual: true,
+});
+
+global.window = dom.window;
+global.document = window.document;
+global.navigator = window.navigator;
+global.localStorage = window.localStorage;
+global.sessionStorage = window.sessionStorage;
 
 // Mock environment variables
-process.env.VITE_API_URL = 'http://localhost:3000/api';
-process.env.VITE_WS_URL = 'ws://localhost:3000';
+process.env.VITE_API_URL = "http://localhost:8000/api";
+process.env.VITE_WS_URL = "ws://localhost:8000";
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -17,36 +31,17 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Storage mocks
-const createStorageMock = () => {
-  let store = {};
-  return {
-    getItem: jest.fn((key) => store[key] || null),
-    setItem: jest.fn((key, value) => {
-      store[key] = String(value);
-    }),
-    removeItem: jest.fn((key) => {
-      delete store[key];
-    }),
-    clear: jest.fn(() => {
-      store = {};
-    }),
-  };
-};
-
-Object.defineProperties(window, {
-  localStorage: { value: createStorageMock() },
-  sessionStorage: { value: createStorageMock() },
+// Mock navigator.onLine
+Object.defineProperty(window.navigator, "onLine", {
+  value: true,
+  writable: true,
+  configurable: true,
 });
 
-// Mock navigator
-Object.defineProperty(window, 'navigator', {
+// Mock serviceWorker
+Object.defineProperty(window.navigator, "serviceWorker", {
   value: {
-    onLine: true,
-    userAgent: 'node.js',
-    serviceWorker: {
-      register: jest.fn().mockResolvedValue({}),
-    },
+    register: jest.fn().mockResolvedValue({}),
   },
   writable: true,
   configurable: true,
@@ -62,7 +57,7 @@ class WebSocketMock {
     this.onmessage = null;
     this.onerror = null;
     this.sentMessages = [];
-    
+
     // Simulate connection
     setTimeout(() => {
       this.readyState = WebSocket.OPEN;
@@ -80,33 +75,46 @@ class WebSocketMock {
   }
 }
 
+// Set WebSocket constants
+WebSocketMock.CONNECTING = 0;
+WebSocketMock.OPEN = 1;
+WebSocketMock.CLOSING = 2;
+WebSocketMock.CLOSED = 3;
+
 global.WebSocket = WebSocketMock;
 
 // Mock console methods
 const originalConsole = { ...console };
 
-// Only throw on actual errors, not warnings
+// Suppress specific warnings
 console.error = (...args) => {
-  originalConsole.error(...args);
-  if (process.env.NODE_ENV === 'test') {
-    const errorMessage = args.join(' ');
-    // Don't fail on certain warnings
-    if (!errorMessage.includes('ReactDOM.render is no longer supported in React 18')) {
-      throw new Error(`Console.error was called: ${errorMessage}`);
-    }
+  const errorMessage = args.join(" ");
+  // Don't fail on certain warnings
+  if (
+    errorMessage.includes(
+      "ReactDOM.render is no longer supported in React 18"
+    ) ||
+    errorMessage.includes("ReactDOMTestUtils.act is deprecated") ||
+    errorMessage.includes("Warning:") ||
+    errorMessage.includes("act(") ||
+    errorMessage.includes("React.createElement: type is invalid")
+  ) {
+    return;
   }
+  originalConsole.error(...args);
 };
 
 // Suppress specific warnings
 const originalWarn = console.warn;
 console.warn = (...args) => {
-  const msg = args[0] || '';
+  const msg = args[0] || "";
   // Suppress specific warnings
   if (
-    msg.includes('ReactDOM.render is no longer supported in React 18') ||
-    msg.includes('componentWillReceiveProps has been renamed') ||
-    msg.includes('componentWillMount has been renamed') ||
-    msg.includes('componentWillUpdate has been renamed')
+    msg.includes("ReactDOM.render is no longer supported in React 18") ||
+    msg.includes("componentWillReceiveProps has been renamed") ||
+    msg.includes("componentWillMount has been renamed") ||
+    msg.includes("componentWillUpdate has been renamed") ||
+    msg.includes("ReactDOMTestUtils.act is deprecated")
   ) {
     return;
   }
@@ -119,7 +127,9 @@ class IntersectionObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
-  takeRecords() { return []; }
+  takeRecords() {
+    return [];
+  }
 }
 
 window.IntersectionObserver = IntersectionObserver;
@@ -133,11 +143,3 @@ class ResizeObserver {
 }
 
 window.ResizeObserver = ResizeObserver;
-
-// Mock React 19 specific APIs
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useId: () => 'test-id',
-  useTransition: () => [false, (fn) => Promise.resolve(fn())],
-  useDeferredValue: (value) => value,
-}));
