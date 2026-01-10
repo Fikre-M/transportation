@@ -4,9 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
 import { HelmetProvider } from 'react-helmet-async';
-
-// Context Providers
-import { AuthProvider } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 // Layouts
 import MainLayout from '@/layouts/MainLayout';
@@ -36,7 +34,7 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   
   if (isLoading) {
-    return <div>Loading...</div>; // Or a loading spinner
+    return <div>Loading...</div>;
   }
   
   if (!isAuthenticated) {
@@ -51,7 +49,7 @@ const PublicOnlyRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   
   if (isLoading) {
-    return <div>Loading...</div>; // Or a loading spinner
+    return <div>Loading...</div>;
   }
   
   if (isAuthenticated) {
@@ -63,18 +61,37 @@ const PublicOnlyRoute = ({ children }) => {
 
 function App() {
   return (
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <Router>
+          <AuthProvider>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                {/* Public Routes */}
+                <Route element={<PublicOnlyRoute><AuthLayout /></PublicOnlyRoute>}>
+                  <Route path="/login" element={<Login />} />
+                </Route>
+
+                {/* Protected Routes */}
+                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/map" element={<MapView />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/dispatch" element={<Dispatch />} />
+                </Route>
+
+                {/* 404 Route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+            <Toaster position="top-right" />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </AuthProvider>
+        </Router>
+      </HelmetProvider>
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;
