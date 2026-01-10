@@ -1,103 +1,74 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
-// Handle environment variables for both Vite and Jest
-const getEnv = () => {
-  // For Jest/Node environment
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env;
+const getEnvVariable = (key, defaultValue) => {
+  if (typeof process !== 'undefined' && process.env && process.env[key]) {
+    return process.env[key];
   }
-  // For Vite/browser environment
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    return import.meta.env;
+  if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+    return import.meta.env[key];
   }
-  // Fallback
-  return {};
+  return defaultValue;
 };
 
-const env = getEnv();
-
-// Create axios instance with base URL
 const api = axios.create({
-  baseURL: env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL: getEnvVariable('VITE_API_URL', 'http://localhost:8000/api'),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Check if api is properly initialized before using interceptors
-if (!api) {
-  throw new Error('Failed to initialize axios instance');
-}
-
-// Request interceptor
-if (api.interceptors) {
-  api.interceptors.request.use(
-    (config) => {
-      // Add auth token to requests if available
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  );
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-  // Response interceptor
-  api.interceptors.response.use(
-    (response) => {
-      // Handle successful responses
-      return response.data;
-    },
-    (error) => {
-      // Handle errors
-      const { response } = error;
-      let errorMessage = 'An unexpected error occurred';
+api.interceptors.response.use(
+  (response) => {
+    return response.data;
+  },
+  (error) => {
+    const { response } = error;
+    let errorMessage = 'An unexpected error occurred';
+    
+    if (response) {
+      const { status, data } = response;
       
-      if (response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        const { status, data } = response;
-        
-        if (status === 401) {
-          // Unauthorized - token expired or invalid
-          errorMessage = 'Your session has expired. Please log in again.';
-          localStorage.removeItem('token');
-          window.location.href = '/login';
-        } else if (status === 403) {
-          // Forbidden - user doesn't have permission
-          errorMessage = 'You do not have permission to perform this action';
-        } else if (status === 404) {
-          // Not found
-          errorMessage = 'The requested resource was not found';
-        } else if (status === 422) {
-          // Validation error
-          errorMessage = data.message || 'Validation failed';
-          return Promise.reject(data);
-        } else if (status >= 500) {
-          // Server error
-          errorMessage = 'A server error occurred. Please try again later.';
-        } else if (data?.message) {
-          errorMessage = data.message;
-        }
-      } else if (error.request) {
-        // The request was made but no response was received
-        errorMessage = 'No response from server. Please check your connection.';
+      if (status === 401) {
+        errorMessage = 'Your session has expired. Please log in again.';
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      } else if (status === 403) {
+        errorMessage = 'You do not have permission to perform this action';
+      } else if (status === 404) {
+        errorMessage = 'The requested resource was not found';
+      } else if (status === 422) {
+        errorMessage = data.message || 'Validation failed';
+        return Promise.reject(data);
+      } else if (status >= 500) {
+        errorMessage = 'A server error occurred. Please try again later.';
+      } else if (data?.message) {
+        errorMessage = data.message;
       }
-      
-      // Show error toast
-      toast.error(errorMessage);
-      
-      return Promise.reject(error);
+    } else if (error.request) {
+      errorMessage = 'No response from server. Please check your connection.';
     }
-  );
-}
+    
+    toast.error(errorMessage);
+    
+    return Promise.reject(error);
+  }
+);
 
-// API methods
 export const auth = {
   login: (credentials) => api.post('/auth/login', credentials),
   me: () => api.get('/auth/me'),
@@ -142,14 +113,11 @@ export const notifications = {
 };
 
 export const socket = {
-  // This would be replaced with actual socket connection in a real implementation
   connect: () => {
     console.log('Connecting to WebSocket...');
-    // In a real app, this would return a socket.io client instance
     return {
       on: (event, callback) => {
         console.log(`Listening to ${event}`);
-        // Mock implementation
         if (event === 'connect') {
           setTimeout(() => callback(), 100);
         }

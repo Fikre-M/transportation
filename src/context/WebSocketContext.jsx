@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createContext, useContext, useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useNotification } from '@/hooks';
 import { useAuth } from './AuthContext';
 
@@ -22,6 +22,16 @@ export const WebSocketProvider = ({ children }) => {
   const pingInterval = useRef(null);
   const lastPongTime = useRef(Date.now());
 
+  const getEnvVariable = (key, defaultValue) => {
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+      return process.env[key];
+    }
+    if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+      return import.meta.env[key];
+    }
+    return defaultValue;
+  };
+
   // Calculate next reconnect delay with exponential backoff
   const getReconnectDelay = useCallback(() => {
     return Math.min(
@@ -37,9 +47,9 @@ export const WebSocketProvider = ({ children }) => {
         const { type, data, resolve, reject } = messageQueue.current.shift();
         try {
           ws.current.send(JSON.stringify({ type, data }));
-          resolve?.();
+          if (resolve) resolve();
         } catch (error) {
-          reject?.(error);
+          if (reject) reject(error);
         }
       }
     }
@@ -81,12 +91,20 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, []);
 
+  // Check if WebSocket is connected
+  const isConnected = useCallback(() => {
+    return ws.current?.readyState === WebSocket.OPEN;
+  }, []);
+
   // Connect to WebSocket
   const connect = useCallback(() => {
     if (isConnected() || !token) return;
 
     setStatus('connecting');
-    const wsUrl = new URL(import.meta.env.VITE_WS_URL || 'wss://api.example.com/ws');
+    
+    // Use the helper function to get the WebSocket URL
+    const wsUrlString = getEnvVariable('VITE_WS_URL', 'ws://localhost:8000/ws');
+    const wsUrl = new URL(wsUrlString);
     wsUrl.searchParams.set('token', token);
 
     ws.current = new WebSocket(wsUrl.toString());
@@ -137,7 +155,9 @@ export const WebSocketProvider = ({ children }) => {
     ws.current.onerror = (error) => {
       console.error('WebSocket error:', error);
       setStatus('error');
-      ws.current?.close();
+      if (ws.current) {
+        ws.current.close();
+      }
     };
 
     return () => {
@@ -145,8 +165,7 @@ export const WebSocketProvider = ({ children }) => {
         ws.current.close();
       }
     };
-  }, [token, isAuthenticated, getReconnectDelay, handleMessage, processQueue, sendPing, showError, showWarning]);
-  
+  }, [token, isAuthenticated, getReconnectDelay, handleMessage, processQueue, sendPing, showError, showWarning, isConnected]);
 
   // Reconnect when authentication state changes
   useEffect(() => {
@@ -212,11 +231,6 @@ export const WebSocketProvider = ({ children }) => {
       }
     });
   }, [connect, isAuthenticated, status]);
-
-  // Check if WebSocket is connected
-  const isConnected = useCallback(() => {
-    return ws.current?.readyState === WebSocket.OPEN;
-  }, []);
 
   // Context value
   const value = useMemo(() => ({
