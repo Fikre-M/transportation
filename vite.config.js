@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig(({ mode }) => {
+  // Load environment variables
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
@@ -12,7 +13,6 @@ export default defineConfig(({ mode }) => {
       open: true,
     },
 
-  
     css: {
       postcss: "./postcss.config.cjs",
     },
@@ -43,6 +43,20 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    define: {
+      // Single define property that combines both environment variable approaches
+      ...(mode === "development" ? { "process.env": process.env } : {}),
+      // Vite environment variables (prefixed with VITE_)
+      ...Object.entries(env).reduce((acc, [key, val]) => {
+        if (key.startsWith("VITE_")) {
+          acc[`import.meta.env.${key}`] = JSON.stringify(val);
+        }
+        return acc;
+      }, {}),
+      // Global constants
+      __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    },
+
     optimizeDeps: {
       include: [
         "react",
@@ -51,7 +65,10 @@ export default defineConfig(({ mode }) => {
         "@emotion/react",
         "@emotion/styled",
         "@mui/material",
+        "jwt-decode",
+        "lucide-react",
       ],
+      exclude: [],
     },
 
     build: {
@@ -61,16 +78,18 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             react: ["react", "react-dom", "react-router-dom"],
-            vendor: ["@emotion/react", "@emotion/styled", "@mui/material"],
+            vendor: [
+              "@emotion/react",
+              "@emotion/styled",
+              "@mui/material",
+              "@mui/icons-material",
+              "jwt-decode",
+              "lucide-react",
+            ],
+            // Add other vendor chunks as needed
           },
         },
       },
-    },
-
-    define: {
-      "process.env": Object.fromEntries(
-        Object.entries(env).filter(([key]) => key.startsWith("VITE_"))
-      ),
     },
   };
 });
