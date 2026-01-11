@@ -1,18 +1,16 @@
 import { Box, Typography, Paper } from "@mui/material";
 
-const Dashboard = () => {
+const MapView = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Dashboard
+        Live Map View
       </Typography>
       <Paper sx={{ p: 3, mt: 2 }}>
-        <Typography>
-          Welcome to the Transportation Operations Dashboard.
-        </Typography>
+        <Typography>Real-time vehicle tracking will appear here.</Typography>
       </Paper>
     </Box>
   );
 };
 
-export default Dashboard;
+export default MapView;

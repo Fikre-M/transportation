@@ -1,4 +1,4 @@
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper } from "@mui/material";
 
 const Dispatch = () => {
   return (
@@ -11,7 +11,7 @@ const Dispatch = () => {
           Coming Soon
         </Typography>
         <Typography>
-          The dispatch center is under construction. Check back later for real-time dispatch management.
+          Real-time dispatch management will be available here.
         </Typography>
       </Paper>
     </Box>

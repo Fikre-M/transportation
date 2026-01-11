@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { 
-  Box, 
-  Button, 
-  TextField, 
-  Typography, 
-  Link, 
-  InputAdornment, 
-  IconButton, 
+import { useState } from "react";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Link,
+  InputAdornment,
+  IconButton,
   Alert,
   Divider,
   Stack,
   CircularProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Email as EmailIcon,
   Lock as LockIcon,
@@ -23,18 +23,18 @@ import {
   VisibilityOff,
   Google as GoogleIcon,
   Facebook as FacebookIcon,
-} from '@mui/icons-material';
-import { useAuth } from '@/context/AuthContext';
+} from "@mui/icons-material";
+import { useAuth } from "@/context/AuthContext";
 
 // Form validation schema
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -46,8 +46,8 @@ const Login = () => {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -57,36 +57,34 @@ const Login = () => {
   };
 
   const onSubmit = async (data) => {
-    setError('');
+    setError("");
     setIsLoading(true);
-    
+
     try {
       const success = await login(data.email, data.password);
       if (success) {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     } catch (err) {
-      setError(err.message || 'Failed to log in. Please try again.');
+      setError(err.message || "Failed to log in. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSocialLogin = (provider) => {
-    // Implement social login logic here
     console.log(`Logging in with ${provider}`);
+    // TODO: implement social login
   };
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        maxWidth: 400,
-        mx: 'auto',
-      }}
-    >
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
-        <Typography component="h1" variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+    <Box sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography
+          component="h1"
+          variant="h4"
+          sx={{ fontWeight: "bold", mb: 1 }}
+        >
           Welcome Back
         </Typography>
         <Typography variant="body2" color="text.secondary">
@@ -114,11 +112,11 @@ const Login = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <EmailIcon color={errors.email ? 'error' : 'action'} />
+                <EmailIcon color={errors.email ? "error" : "action"} />
               </InputAdornment>
             ),
           }}
-          {...register('email')}
+          {...register("email")}
         />
 
         <TextField
@@ -126,7 +124,7 @@ const Login = () => {
           required
           fullWidth
           label="Password"
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           id="password"
           autoComplete="current-password"
           error={!!errors.password}
@@ -134,7 +132,7 @@ const Login = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <LockIcon color={errors.password ? 'error' : 'action'} />
+                <LockIcon color={errors.password ? "error" : "action"} />
               </InputAdornment>
             ),
             endAdornment: (
@@ -150,10 +148,10 @@ const Login = () => {
               </InputAdornment>
             ),
           }}
-          {...register('password')}
+          {...register("password")}
         />
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
           <Link
             component={RouterLink}
             to="/forgot-password"
@@ -173,7 +171,7 @@ const Login = () => {
           disabled={isLoading}
           sx={{ mt: 2, mb: 2, py: 1.5 }}
         >
-          {isLoading ? <CircularProgress size={24} /> : 'Sign In'}
+          {isLoading ? <CircularProgress size={24} /> : "Sign In"}
         </Button>
       </Box>
 
@@ -188,39 +186,36 @@ const Login = () => {
           fullWidth
           variant="outlined"
           startIcon={<GoogleIcon />}
-          onClick={() => handleSocialLogin('google')}
+          onClick={() => handleSocialLogin("google")}
           sx={{
             py: 1.5,
-            textTransform: 'none',
-            borderColor: 'divider',
-            '&:hover': {
-              borderColor: 'text.primary',
-            },
+            textTransform: "none",
+            borderColor: "divider",
+            "&:hover": { borderColor: "text.primary" },
           }}
         >
           Google
         </Button>
+
         <Button
           fullWidth
           variant="outlined"
           startIcon={<FacebookIcon />}
-          onClick={() => handleSocialLogin('facebook')}
+          onClick={() => handleSocialLogin("facebook")}
           sx={{
             py: 1.5,
-            textTransform: 'none',
-            borderColor: 'divider',
-            '&:hover': {
-              borderColor: 'text.primary',
-            },
+            textTransform: "none",
+            borderColor: "divider",
+            "&:hover": { borderColor: "text.primary" },
           }}
         >
           Facebook
         </Button>
       </Stack>
 
-      <Box sx={{ textAlign: 'center', mt: 3 }}>
+      <Box sx={{ textAlign: "center", mt: 3 }}>
         <Typography variant="body2" color="text.secondary">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link
             component={RouterLink}
             to="/register"

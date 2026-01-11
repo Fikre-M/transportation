@@ -1,4 +1,4 @@
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper } from "@mui/material";
 
 const Analytics = () => {
   return (
@@ -10,9 +10,7 @@ const Analytics = () => {
         <Typography variant="h6" gutterBottom>
           Coming Soon
         </Typography>
-        <Typography>
-          The analytics dashboard is under construction. Check back later for insights and metrics.
-        </Typography>
+        <Typography>The analytics dashboard is under construction.</Typography>
       </Paper>
     </Box>
   );
