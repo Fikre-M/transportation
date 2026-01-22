@@ -114,22 +114,44 @@ class AIService {
 
   // Mock responses for development/fallback
   mockChatResponse(message) {
-    const responses = {
-      'book ride': 'I can help you book a ride! Where would you like to go?',
-      'cancel trip': 'I can help you cancel your trip. Let me find your active bookings.',
-      'driver location': 'Your driver is 3 minutes away. I\'ll send you live updates.',
-      'fare estimate': 'Based on current demand, your estimated fare is $12-15.',
-      default: 'I\'m here to help with your ride needs. You can ask me about booking, canceling, or tracking rides.',
-    };
-
-    const key = Object.keys(responses).find(k => 
-      message.toLowerCase().includes(k) && k !== 'default'
-    ) || 'default';
+    const lowerMessage = message.toLowerCase();
+    
+    let response = '';
+    let suggestions = ['Book a ride', 'Track my driver', 'Cancel trip', 'Fare estimate'];
+    
+    if (lowerMessage.includes('book') || lowerMessage.includes('ride')) {
+      response = '🚗 I can help you book a ride! Where would you like to go? Please provide your pickup location and destination.';
+      suggestions = ['Downtown to Airport', 'Home to Office', 'Mall to Restaurant', 'Get fare estimate'];
+    } else if (lowerMessage.includes('cancel') || lowerMessage.includes('trip')) {
+      response = '❌ I can help you cancel your trip. Let me find your active bookings. Do you want to cancel your current ride?';
+      suggestions = ['Yes, cancel ride', 'No, keep ride', 'View my trips', 'Contact driver'];
+    } else if (lowerMessage.includes('driver') || lowerMessage.includes('track')) {
+      response = '📍 Your driver John is 3 minutes away! 🚙 Vehicle: Blue Toyota Camry (ABC-123). I\'ll send you live updates on their location.';
+      suggestions = ['Call driver', 'Share trip', 'View route', 'Cancel trip'];
+    } else if (lowerMessage.includes('fare') || lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+      response = '💰 Based on current demand and distance, your estimated fare is $12-15. This includes base fare, distance, and time charges.';
+      suggestions = ['Book this ride', 'Compare prices', 'View breakdown', 'Choose vehicle type'];
+    } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+      response = '👋 Hello! I\'m your AI rideshare assistant. I can help you book rides, track drivers, get fare estimates, and manage your trips. What would you like to do?';
+      suggestions = ['Book a ride', 'Track my driver', 'Fare estimate', 'View trip history'];
+    } else if (lowerMessage.includes('help') || lowerMessage.includes('support')) {
+      response = '🆘 I\'m here to help! I can assist you with:\n• Booking new rides\n• Tracking your current driver\n• Getting fare estimates\n• Managing your trips\n• Answering questions about our service\n\nWhat do you need help with?';
+      suggestions = ['Book a ride', 'Track driver', 'Payment issues', 'Account settings'];
+    } else if (lowerMessage.includes('payment') || lowerMessage.includes('card')) {
+      response = '💳 I can help with payment issues. You can add, remove, or update payment methods in your account settings. What payment issue are you experiencing?';
+      suggestions = ['Add payment method', 'Update card', 'Payment failed', 'View receipts'];
+    } else if (lowerMessage.includes('account') || lowerMessage.includes('profile')) {
+      response = '👤 For account settings, you can update your profile, payment methods, and preferences in the app settings. What would you like to change?';
+      suggestions = ['Update profile', 'Change password', 'Payment methods', 'Notification settings'];
+    } else {
+      response = '🤖 I\'m here to help with your ride needs! I can assist you with booking rides, tracking drivers, fare estimates, and managing your trips. What would you like to do?';
+      suggestions = ['Book a ride', 'Track my driver', 'Fare estimate', 'Get help'];
+    }
 
     return {
-      response: responses[key],
-      confidence: 0.85,
-      suggestions: ['Book a ride', 'Track my driver', 'Cancel trip', 'Fare estimate'],
+      response,
+      confidence: Math.random() * 0.3 + 0.7, // Random confidence between 0.7-1.0
+      suggestions,
       timestamp: new Date().toISOString(),
     };
   }

@@ -1,148 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
-import {
-  Box,
-  Paper,
-  TextField,
-  IconButton,
-  Typography,
-  Avatar,
-  Chip,
-  Fab,
-  Slide,
-  CircularProgress,
-  Badge,
-  Tooltip,
-} from '@mui/material';
-import {
-  Send as SendIcon,
-  Close as CloseIcon,
-  SmartToy as BotIcon,
-  Person as UserIcon,
-  Minimize as MinimizeIcon,
-  Fullscreen as ExpandIcon,
-  VolumeUp as SpeakIcon,
-} from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import aiService from '../../services/aiService';
-
-const ChatContainer = styled(Paper)(({ theme, expanded }) => ({
-  position: 'fixed',
-  bottom: expanded ? 20 : 100,
-  right: 24,
-  width: expanded ? 420 : 350,
-  height: expanded ? 600 : 500,
-  display: 'flex',
-  flexDirection: 'column',
-  zIndex: 1300,
-  borderRadius: 20,
-  overflow: 'hidden',
-  boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-  border: `1px solid ${theme.palette.divider}`,
-  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
-  [theme.breakpoints.down('sm')]: {
-    width: 'calc(100vw - 32px)',
-    height: 'calc(100vh - 120px)',
-    right: 16,
-    bottom: 80,
-  },
-}));
-
-const ChatHeader = styled(Box)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-  color: 'white',
-  padding: theme.spacing(2),
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  backdropFilter: 'blur(20px)',
-}));
-
-const MessagesContainer = styled(Box)(({ theme }) => ({
-  flex: 1,
-  overflowY: 'auto',
-  padding: theme.spacing(1),
-  backgroundColor: theme.palette.background.default,
-  '&::-webkit-scrollbar': {
-    width: '6px',
-  },
-  '&::-webkit-scrollbar-track': {
-    background: theme.palette.background.paper,
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: theme.palette.primary.light,
-    borderRadius: '3px',
-  },
-}));
-
-const MessageBubble = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'isUser',
-})(({ theme, isUser }) => ({
-  display: 'flex',
-  alignItems: 'flex-start',
-  marginBottom: theme.spacing(2),
-  flexDirection: isUser ? 'row-reverse' : 'row',
-}));
-
-const MessageContent = styled(Paper, {
-  shouldForwardProp: (prop) => prop !== 'isUser',
-})(({ theme, isUser }) => ({
-  padding: theme.spacing(1.5, 2),
-  maxWidth: '80%',
-  marginLeft: isUser ? 0 : theme.spacing(1),
-  marginRight: isUser ? theme.spacing(1) : 0,
-  background: isUser 
-    ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
-    : theme.palette.background.paper,
-  color: isUser ? 'white' : theme.palette.text.primary,
-  borderRadius: isUser ? '20px 20px 6px 20px' : '20px 20px 20px 6px',
-  boxShadow: theme.shadows[2],
-  position: 'relative',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    border: '8px solid transparent',
-    borderTopColor: isUser ? theme.palette.primary.main : theme.palette.background.paper,
-    bottom: -8,
-    [isUser ? 'right' : 'left']: 12,
-  },
-}));
-
-const InputContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-  borderTop: `1px solid ${theme.palette.divider}`,
-  backdropFilter: 'blur(20px)',
-}));
-
-const StyledFab = styled(Fab)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-  boxShadow: '0 8px 24px rgba(25, 118, 210, 0.3)',
-  '&:hover': {
-    background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.secondary.dark} 100%)`,
-    boxShadow: '0 12px 32px rgba(25, 118, 210, 0.4)',
-    transform: 'scale(1.1)',
-  },
-  transition: 'all 0.3s ease',
-}));
 
 const ChatBot = ({ open, onClose }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "👋 Hi! I'm your AI assistant. I can help you with booking rides, tracking drivers, fare estimates, and answering questions about your trips. What can I help you with today?",
+      text: "Hello! I'm your AI assistant. How can I help you today?",
       isUser: false,
       timestamp: new Date(),
-      suggestions: ['Book a ride', 'Track my driver', 'Fare estimate', 'Cancel trip'],
+      suggestions: ['Book a ride', 'Track driver', 'Get fare estimate', 'Help'],
     },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -152,12 +23,6 @@ const ChatBot = ({ open, onClose }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    if (open) {
-      setUnreadCount(0);
-    }
-  }, [open]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -189,14 +54,10 @@ const ChatBot = ({ open, onClose }) => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-      
-      if (!open) {
-        setUnreadCount(prev => prev + 1);
-      }
     } catch (error) {
       const errorMessage = {
         id: Date.now() + 1,
-        text: "I'm having trouble connecting right now. Please try again in a moment.",
+        text: "Sorry, I'm having trouble connecting. Please try again.",
         isUser: false,
         timestamp: new Date(),
         isError: true,
@@ -211,208 +72,172 @@ const ChatBot = ({ open, onClose }) => {
     setInputValue(suggestion);
   };
 
-  const handleKeyPress = (event) => {
+  const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSendMessage();
     }
   };
 
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-  };
-
-  const handleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  if (!open) return null;
 
   return (
     <AnimatePresence>
-      {open && (
-        <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-          <ChatContainer expanded={isExpanded}>
-            <ChatHeader>
-              <Box display="flex" alignItems="center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        transition={{ duration: 0.2 }}
+        className="fixed bottom-20 right-6 w-96 h-[500px] bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-50 flex flex-col"
+        style={{
+          background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.8)'
+        }}
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-lg">AI Assistant</h3>
+              <p className="text-white/80 text-sm">Online • Ready to help</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+          {messages.map((message) => (
+            <motion.div
+              key={message.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`max-w-[80%] ${message.isUser ? 'order-2' : 'order-1'}`}>
+                <div
+                  className={`px-4 py-3 rounded-2xl ${
+                    message.isUser
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-br-md'
+                      : 'bg-white text-gray-800 rounded-bl-md shadow-sm border border-gray-100'
+                  }`}
                 >
-                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mr: 2, width: 40, height: 40 }}>
-                    <BotIcon />
-                  </Avatar>
-                </motion.div>
-                <Box>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    AI Assistant
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                    🟢 Online • Ready to help
-                  </Typography>
-                </Box>
-              </Box>
-              <Box display="flex" alignItems="center">
-                <Tooltip title={isExpanded ? "Minimize" : "Expand"}>
-                  <IconButton onClick={handleExpand} sx={{ color: 'white', mr: 1 }}>
-                    {isExpanded ? <MinimizeIcon /> : <ExpandIcon />}
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Close">
-                  <IconButton onClick={onClose} sx={{ color: 'white' }}>
-                    <CloseIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </ChatHeader>
-
-            {!isMinimized && (
-              <>
-                <MessagesContainer>
-                  {messages.map((message) => (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <MessageBubble isUser={message.isUser}>
-                        <Avatar
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: message.isUser ? 'primary.main' : 'secondary.main',
-                          }}
-                        >
-                          {message.isUser ? <UserIcon /> : <BotIcon />}
-                        </Avatar>
-                        <MessageContent isUser={message.isUser}>
-                          <Typography variant="body2">{message.text}</Typography>
-                          {message.confidence && (
-                            <Typography variant="caption" sx={{ opacity: 0.7, mt: 0.5, display: 'block' }}>
-                              Confidence: {(message.confidence * 100).toFixed(0)}%
-                            </Typography>
-                          )}
-                        </MessageContent>
-                      </MessageBubble>
-                      
-                      {message.suggestions && (
-                        <Box sx={{ ml: message.isUser ? 0 : 5, mr: message.isUser ? 5 : 0, mb: 1 }}>
-                          {message.suggestions.map((suggestion, index) => (
-                            <Chip
-                              key={index}
-                              label={suggestion}
-                              size="small"
-                              onClick={() => handleSuggestionClick(suggestion)}
-                              sx={{ 
-                                mr: 0.5, 
-                                mb: 0.5, 
-                                cursor: 'pointer',
-                                '&:hover': {
-                                  backgroundColor: 'primary.light',
-                                  color: 'white',
-                                }
-                              }}
-                              variant="outlined"
-                            />
-                          ))}
-                        </Box>
-                      )}
-                    </motion.div>
-                  ))}
-                  
-                  {isLoading && (
-                    <MessageBubble isUser={false}>
-                      <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
-                        <BotIcon />
-                      </Avatar>
-                      <MessageContent isUser={false}>
-                        <Box display="flex" alignItems="center">
-                          <CircularProgress size={16} sx={{ mr: 1 }} />
-                          <Typography variant="body2">AI is thinking...</Typography>
-                        </Box>
-                      </MessageContent>
-                    </MessageBubble>
+                  <p className="text-sm leading-relaxed">{message.text}</p>
+                  {message.confidence && (
+                    <p className="text-xs opacity-70 mt-1">
+                      Confidence: {(message.confidence * 100).toFixed(0)}%
+                    </p>
                   )}
-                  
-                  <div ref={messagesEndRef} />
-                </MessagesContainer>
+                </div>
+                
+                {message.suggestions && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {message.suggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="px-3 py-1 text-xs bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors border border-indigo-200"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+          
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-white rounded-2xl rounded-bl-md shadow-sm border border-gray-100 px-4 py-3">
+                <div className="flex items-center space-x-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                  <span className="text-sm text-gray-500">Thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
 
-                <InputContainer>
-                  <Box display="flex" alignItems="flex-end" gap={1}>
-                    <TextField
-                      fullWidth
-                      multiline
-                      maxRows={3}
-                      placeholder="Type your message..."
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      disabled={isLoading}
-                      variant="outlined"
-                      size="small"
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: 3,
-                          backgroundColor: 'background.default',
-                        },
-                      }}
-                    />
-                    <IconButton
-                      onClick={handleSendMessage}
-                      disabled={!inputValue.trim() || isLoading}
-                      sx={{
-                        bgcolor: 'primary.main',
-                        color: 'white',
-                        '&:hover': { bgcolor: 'primary.dark' },
-                        '&:disabled': { bgcolor: 'action.disabled' },
-                      }}
-                    >
-                      <SendIcon />
-                    </IconButton>
-                  </Box>
-                </InputContainer>
-              </>
-            )}
-          </ChatContainer>
-        </Slide>
-      )}
+        {/* Input */}
+        <div className="p-4 bg-white border-t border-gray-100">
+          <div className="flex items-center space-x-3">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your message..."
+                disabled={isLoading}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-800 placeholder-gray-500"
+              />
+            </div>
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </motion.div>
     </AnimatePresence>
   );
 };
 
-// Enhanced Chat Trigger Button
-export const ChatTrigger = ({ onClick }) => {
+// Chat Trigger Button
+const ChatTrigger = ({ onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [unreadCount] = useState(0);
 
   return (
-    <Tooltip title="Chat with AI Assistant" placement="left">
-      <Badge badgeContent={unreadCount} color="error">
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onHoverStart={() => setIsHovered(true)}
-          onHoverEnd={() => setIsHovered(false)}
-        >
-          <StyledFab
-            onClick={onClick}
-            sx={{
-              position: 'fixed',
-              bottom: 24,
-              right: 24,
-              zIndex: 1200,
-            }}
-          >
-            <motion.div
-              animate={isHovered ? { rotate: [0, -10, 10, -10, 0] } : {}}
-              transition={{ duration: 0.5 }}
-            >
-              <BotIcon />
-            </motion.div>
-          </StyledFab>
-        </motion.div>
-      </Badge>
-    </Tooltip>
+    <motion.button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-40"
+      style={{
+        boxShadow: '0 20px 40px -12px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+      }}
+    >
+      <motion.div
+        animate={isHovered ? { rotate: [0, -15, 15, -15, 0] } : {}}
+        transition={{ duration: 0.6 }}
+      >
+        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      </motion.div>
+      
+      {/* Pulse effect */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-ping opacity-20"></div>
+    </motion.button>
   );
 };
 
+export { ChatTrigger };
 export default ChatBot;

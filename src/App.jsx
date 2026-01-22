@@ -6,8 +6,6 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -16,6 +14,7 @@ import { SnackbarProvider } from "notistack";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import LoadingScreen from "./components/common/LoadingScreen";
 import ChatBot, { ChatTrigger } from "./components/ai/ChatBot";
+import AppRating from "./components/common/AppRating";
 
 // Lazy load components
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
@@ -190,16 +189,7 @@ const theme = createTheme({
   },
 });
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
-      cacheTime: 10 * 60 * 1000,
-    },
-  },
-});
+
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -265,17 +255,8 @@ const AppRoutes = () => {
       <ChatTrigger onClick={() => setChatOpen(true)} />
       <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
       
-      <ReactQueryDevtools 
-        initialIsOpen={false} 
-        position="bottom-right"
-        buttonPosition="bottom-right"
-        panelProps={{
-          style: {
-            zIndex: 1000,
-            right: '80px', // Move it away from the chatbot
-          }
-        }}
-      />
+      {/* App Rating Component */}
+      <AppRating />
     </>
   );
 };
@@ -286,11 +267,9 @@ const AppContent = () => {
       <CssBaseline />
       <HelmetProvider>
         <SnackbarProvider maxSnack={3}>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <AppRoutes />
-            </AuthProvider>
-          </QueryClientProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
           <Toaster position="top-right" />
         </SnackbarProvider>
       </HelmetProvider>
