@@ -1,20 +1,31 @@
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useState, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
   useLocation,
+  useNavigate
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { HelmetProvider } from "react-helmet-async";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme, useTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { SnackbarProvider } from "notistack";
+import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import LoadingScreen from "./components/common/LoadingScreen";
 import ChatBot, { ChatTrigger } from "./components/ai/ChatBot";
 import AppRating from "./components/common/AppRating";
+import config from "./config/config";
+
+// Initialize error tracking (e.g., Sentry)
+if (config.analytics.sentryDsn) {
+  // Initialize your error tracking service here
+  // Example with Sentry:
+  // import * as Sentry from "@sentry/react";
+  // Sentry.init({ dsn: config.analytics.sentryDsn });
+}
 
 // Lazy load components
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
@@ -261,26 +272,63 @@ const AppRoutes = () => {
   );
 };
 
-const AppContent = () => {
+// AppContent has been removed as it was duplicating providers
+
+// Global error handler for uncaught errors
+const GlobalErrorHandler = ({ children }) => {
+  const theme = useTheme();
+  
+  const handleError = useCallback((error, errorInfo) => {
+    // Log the error to your error tracking service
+    console.error('Uncaught error:', error, errorInfo);
+    
+    // You can also show a toast notification
+    // toast.error('An unexpected error occurred. Please try again.');
+  }, []);
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <HelmetProvider>
-        <SnackbarProvider maxSnack={3}>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-          <Toaster position="top-right" />
-        </SnackbarProvider>
-      </HelmetProvider>
-    </ThemeProvider>
+    <ErrorBoundary onError={handleError}>
+      {children}
+    </ErrorBoundary>
   );
 };
 
 const App = () => {
+  const [chatOpen, setChatOpen] = useState(false);
+  
   return (
     <Router>
-      <AppContent />
+      <HelmetProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <SnackbarProvider 
+            maxSnack={3}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            autoHideDuration={5000}
+            preventDuplicate
+          >
+            <GlobalErrorHandler>
+              <AuthProvider>
+                <Suspense fallback={<LoadingScreen />}>
+                  <AppRoutes />
+                </Suspense>
+                
+                {/* AI ChatBot - Available globally on all pages */}
+                <ChatTrigger onClick={() => setChatOpen(true)} />
+                <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+                
+                {/* App Rating Component */}
+                <AppRating />
+                
+                <Toaster position="top-right" />
+              </AuthProvider>
+            </GlobalErrorHandler>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </HelmetProvider>
     </Router>
   );
 };
