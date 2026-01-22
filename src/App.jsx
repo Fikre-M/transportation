@@ -70,10 +70,49 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
-const AppContent = () => {
+const AppRoutes = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
+  return (
+    <>
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+      
+      {/* AI ChatBot - Available on all pages */}
+      {isAuthenticated && (
+        <>
+          <ChatTrigger onClick={() => setChatOpen(true)} />
+          <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+        </>
+      )}
+      
+      <ReactQueryDevtools initialIsOpen={false} />
+    </>
+  );
+};
+
+const AppContent = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -81,38 +120,7 @@ const AppContent = () => {
         <SnackbarProvider maxSnack={3}>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
-              <Suspense fallback={<LoadingScreen />}>
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route
-                    path="/login"
-                    element={
-                      <PublicRoute>
-                        <Login />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/*"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Suspense>
-              
-              {/* AI ChatBot - Available on all pages */}
-              {isAuthenticated && (
-                <>
-                  <ChatTrigger onClick={() => setChatOpen(true)} />
-                  <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
-                </>
-              )}
-              
-              <ReactQueryDevtools initialIsOpen={false} />
+              <AppRoutes />
             </AuthProvider>
           </QueryClientProvider>
           <Toaster position="top-right" />
