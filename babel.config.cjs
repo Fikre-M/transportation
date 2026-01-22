@@ -24,7 +24,7 @@ module.exports = {
       useESModules: true
     }],
     '@babel/plugin-transform-modules-commonjs',
-    process.env.NODE_ENV !== 'production' && 'react-refresh/babel',
+    process.env.NODE_ENV === 'development' && 'react-refresh/babel',
   ].filter(Boolean),
   env: {
     test: {
