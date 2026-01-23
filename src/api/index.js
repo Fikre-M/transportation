@@ -5,9 +5,13 @@ const getEnvVariable = (key, defaultValue) => {
   if (typeof process !== 'undefined' && process.env && process.env[key]) {
     return process.env[key];
   }
-  if (typeof import !== 'undefined' && import.meta && import.meta.env) {
-    return import.meta.env[key];
+  // if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+  //   return import.meta.env[key];
+  // }
+  if (process.env[key]) {
+    return process.env[key];
   }
+
   return defaultValue;
 };
 

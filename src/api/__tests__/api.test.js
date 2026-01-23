@@ -1,8 +1,5 @@
-import axios from 'axios';
-import { authAPI, vehiclesAPI, tripsAPI, analyticsAPI, dispatchAPI } from '..';
-
-// Mock axios
 jest.mock('axios');
+import { authAPI, vehiclesAPI, tripsAPI, analyticsAPI, dispatchAPI } from '..';
 
 describe('API', () => {
   const mockToken = 'test-token';

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useCallback, useMemo, useState } from 'react';
-import { useNotification } from '@/hooks';
+import { useNotification } from "../../hooks/useNotification";
 import { useAuth } from './AuthContext';
 
 const MAX_RECONNECT_ATTEMPTS = 5;
@@ -26,8 +26,11 @@ export const WebSocketProvider = ({ children }) => {
     if (typeof process !== 'undefined' && process.env && process.env[key]) {
       return process.env[key];
     }
-    if (typeof import !== 'undefined' && import.meta && import.meta.env) {
-      return import.meta.env[key];
+    // if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+    //   return import.meta.env[key];
+    // }
+    if (process.env[key]) {
+      return process.env[key];
     }
     return defaultValue;
   };

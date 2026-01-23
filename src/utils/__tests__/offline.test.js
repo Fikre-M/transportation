@@ -1,6 +1,14 @@
 import { renderHook, act } from "@testing-library/react";
 import { useOfflineStatus, registerServiceWorker } from "../offline";
 
+
+beforeAll(() => {
+  Object.defineProperty(global.navigator, "serviceWorker", {
+    value: { register: jest.fn().mockResolvedValue({}) },
+    writable: true,
+  });
+});
+
 describe("useOfflineStatus", () => {
   beforeEach(() => {
     Object.defineProperty(window.navigator, "onLine", {

@@ -1,5 +1,8 @@
-import "@testing-library/jest-dom";
 
+// import "@testing-library/jest-dom";
+
+
+// TextEncoder / TextDecoder for Node test environment
 if (typeof TextEncoder === "undefined") {
   global.TextEncoder = require("util").TextEncoder;
 }
@@ -7,6 +10,7 @@ if (typeof TextDecoder === "undefined") {
   global.TextDecoder = require("util").TextDecoder;
 }
 
+// Basic window + navigator + storage mocks
 const mockWindow = {
   location: new URL("http://localhost:8000"),
   navigator: {
@@ -16,43 +20,33 @@ const mockWindow = {
       register: jest.fn().mockResolvedValue({}),
     },
   },
-  localStorage: (() => {
-    let store = {};
-    return {
-      getItem: jest.fn((key) => store[key] || null),
-      setItem: jest.fn((key, value) => {
-        store[key] = String(value);
-      }),
-      removeItem: jest.fn((key) => {
-        delete store[key];
-      }),
-      clear: jest.fn(() => {
-        store = {};
-      }),
-    };
-  })(),
-  sessionStorage: (() => {
-    let store = {};
-    return {
-      getItem: jest.fn((key) => store[key] || null),
-      setItem: jest.fn((key, value) => {
-        store[key] = String(value);
-      }),
-      removeItem: jest.fn((key) => {
-        delete store[key];
-      }),
-      clear: jest.fn(() => {
-        store = {};
-      }),
-    };
-  })(),
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  dispatchEvent: jest.fn(),
 };
 
-global.window = mockWindow;
-global.document = {
+global.window = Object.assign(global.window || {}, mockWindow);
+
+// Local/session storage mocks
+const createStorageMock = () => {
+  let store = {};
+  return {
+    getItem: jest.fn((key) => (key in store ? store[key] : null)),
+    setItem: jest.fn((key, value) => {
+      store[key] = String(value);
+    }),
+    removeItem: jest.fn((key) => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    }),
+  };
+};
+
+global.localStorage = createStorageMock();
+global.sessionStorage = createStorageMock();
+global.navigator = mockWindow.navigator;
+
+// Very lightweight DOM mock (only if not already provided by jsdom)
+global.document = global.document || {
   createElement: jest.fn(() => ({})),
   querySelector: jest.fn(),
   querySelectorAll: jest.fn(),
@@ -60,13 +54,12 @@ global.document = {
   getElementsByClassName: jest.fn(),
   getElementsByTagName: jest.fn(),
 };
-global.localStorage = mockWindow.localStorage;
-global.sessionStorage = mockWindow.sessionStorage;
-global.navigator = mockWindow.navigator;
 
+// Vite env vars used in tests
 process.env.VITE_API_URL = "http://localhost:8000/api";
 process.env.VITE_WS_URL = "ws://localhost:8000";
 
+// matchMedia mock
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -79,10 +72,11 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
+// WebSocket mock
 class WebSocketMock {
   constructor(url) {
     this.url = url;
-    this.readyState = WebSocket.CONNECTING;
+    this.readyState = WebSocketMock.CONNECTING;
     this.onopen = null;
     this.onclose = null;
     this.onmessage = null;
@@ -90,7 +84,7 @@ class WebSocketMock {
     this.sentMessages = [];
 
     setTimeout(() => {
-      this.readyState = WebSocket.OPEN;
+      this.readyState = WebSocketMock.OPEN;
       if (this.onopen) this.onopen();
     }, 0);
   }
@@ -100,7 +94,7 @@ class WebSocketMock {
   }
 
   close() {
-    this.readyState = WebSocket.CLOSED;
+    this.readyState = WebSocketMock.CLOSED;
     if (this.onclose) this.onclose({ code: 1000 });
   }
 }
@@ -112,19 +106,16 @@ WebSocketMock.CLOSED = 3;
 
 global.WebSocket = WebSocketMock;
 
+// Keep console, but filter only the noisiest React warnings
 const originalConsole = { ...console };
 
 console.error = (...args) => {
   const errorMessage = args.join(" ");
   if (
     errorMessage.includes(
-      "ReactDOM.render is no longer supported in React 18"
+      "ReactDOM.render is no longer supported in React 18",
     ) ||
-    errorMessage.includes("ReactDOMTestUtils.act is deprecated") ||
-    errorMessage.includes("Warning:") ||
-    errorMessage.includes("act(") ||
-    errorMessage.includes("React.createElement: type is invalid") ||
-    errorMessage.includes("import.meta")
+    errorMessage.includes("ReactDOMTestUtils.act is deprecated")
   ) {
     return;
   }
@@ -145,6 +136,7 @@ console.warn = (...args) => {
   originalConsole.warn(...args);
 };
 
+// IntersectionObserver mock
 class IntersectionObserver {
   constructor() {}
   disconnect() {}
@@ -154,14 +146,13 @@ class IntersectionObserver {
     return [];
   }
 }
-
 global.IntersectionObserver = IntersectionObserver;
 
+// ResizeObserver mock
 class ResizeObserver {
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
 }
-
 global.ResizeObserver = ResizeObserver;

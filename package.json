@@ -103,11 +103,7 @@
     "typescript": "^5.9.3",
     "vite": "^5.2.0"
   },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.js"
-    ],
+ 
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1",
       "^@/hooks$": "<rootDir>/src/hooks/index.js",
@@ -148,8 +144,7 @@
         "VITE_API_URL": "http://localhost:8000/api",
         "VITE_WS_URL": "ws://localhost:8000"
       }
-    }
-  },
+    },
   "browserslist": [
     ">0.2%",
     "not dead",
