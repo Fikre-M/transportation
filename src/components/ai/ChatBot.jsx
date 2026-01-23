@@ -1,152 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IconButton, Box, styled } from '@mui/material';
-import { Message, Send, Close, SmartToy } from '@mui/icons-material';
 import aiService from '../../services/aiService';
-
-// Styled components for the chat
-const ChatContainer = styled(motion.div)(({ theme }) => ({
-  position: 'fixed',
-  bottom: '100px',
-  right: '30px',
-  width: '350px',
-  maxWidth: '90vw',
-  height: '500px',
-  maxHeight: '70vh',
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: '12px',
-  boxShadow: '0 5px 20px rgba(0,0,0,0.2)',
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-  zIndex: 1300, // Higher than most elements
-}));
-
-const ChatHeader = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  padding: '12px 16px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  '& h3': {
-    margin: 0,
-    fontSize: '1rem',
-    fontWeight: 500,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-}));
-
-const MessagesContainer = styled('div')({
-  flex: 1,
-  overflowY: 'auto',
-  padding: '16px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-});
-
-const MessageBubble = styled('div')(({ isUser, theme }) => ({
-  maxWidth: '80%',
-  padding: '10px 16px',
-  borderRadius: '18px',
-  position: 'relative',
-  wordBreak: 'break-word',
-  fontSize: '0.9rem',
-  lineHeight: 1.4,
-  '&:after': {
-    content: '""',
-    position: 'absolute',
-    bottom: 0,
-    width: '20px',
-    height: '20px',
-  },
-  ...(isUser 
-    ? {
-        alignSelf: 'flex-end',
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText,
-        borderTopRightRadius: '4px',
-        '&:after': {
-          right: '-10px',
-          backgroundColor: theme.palette.primary.main,
-          clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%)',
-        },
-      }
-    : {
-        alignSelf: 'flex-start',
-        backgroundColor: theme.palette.grey[200],
-        color: theme.palette.text.primary,
-        borderTopLeftRadius: '4px',
-        '&:after': {
-          left: '-10px',
-          backgroundColor: theme.palette.grey[200],
-          clipPath: 'polygon(0% 0%, 100% 0%, 0% 100%)',
-        },
-      }),
-}));
-
-const InputContainer = styled('form')(({ theme }) => ({
-  display: 'flex',
-  padding: '12px',
-  borderTop: `1px solid ${theme.palette.divider}`,
-  '& input': {
-    flex: 1,
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: '24px',
-    padding: '10px 16px',
-    fontSize: '0.9rem',
-    outline: 'none',
-    '&:focus': {
-      borderColor: theme.palette.primary.main,
-      boxShadow: `0 0 0 2px ${theme.palette.primary.light}80`,
-    },
-  },
-  '& button': {
-    marginLeft: '8px',
-    backgroundColor: theme.palette.primary.main,
-    color: 'white',
-    border: 'none',
-    borderRadius: '50%',
-    width: '40px',
-    height: '40px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-      transform: 'scale(1.05)',
-    },
-    '&:active': {
-      transform: 'scale(0.95)',
-    },
-  },
-}));
-
-const SuggestionsContainer = styled('div')({
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '8px',
-  padding: '0 16px 16px',
-});
-
-const SuggestionChip = styled('button')(({ theme }) => ({
-  backgroundColor: theme.palette.grey[100],
-  border: `1px solid ${theme.palette.grey[300]}`,
-  borderRadius: '16px',
-  padding: '6px 12px',
-  fontSize: '0.8rem',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  '&:hover': {
-    backgroundColor: theme.palette.grey[200],
-    transform: 'translateY(-2px)',
-  },
-}));
 
 const ChatBot = ({ open, onClose }) => {
   const [messages, setMessages] = useState([
@@ -228,125 +82,392 @@ const ChatBot = ({ open, onClose }) => {
   if (!open) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.2 }}
-        className="fixed bottom-24 right-8 w-96 max-w-[calc(100vw-4rem)] h-[600px] max-h-[80vh] bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden z-[1000] flex flex-col"
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: 50 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.8, y: 50 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        duration: 0.3 
+      }}
+      style={{
+        position: 'fixed',
+        bottom: '100px',
+        right: '24px',
+        width: '400px',
+        maxWidth: 'calc(100vw - 48px)',
+        height: '600px',
+        maxHeight: 'calc(100vh - 140px)',
+        zIndex: 9999,
+        transformOrigin: 'bottom right',
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        border: '1px solid #e5e7eb',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {/* Header */}
+      <div 
+        style={{
+          background: 'linear-gradient(to right, #2563eb, #7c3aed, #4f46e5)',
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold text-lg">AI Assistant</h3>
-              <p className="text-white/80 text-sm">Online • Ready to help</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div 
+            style={{
+              width: '40px',
+              height: '40px',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(4px)'
+            }}
+          >
+            <svg 
+              style={{ width: '24px', height: '24px', color: '#fbbf24' }} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" 
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 style={{ color: 'white', fontWeight: '600', fontSize: '18px', margin: 0 }}>
+              AI Assistant
+            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div 
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: '#10b981',
+                  borderRadius: '50%',
+                  animation: 'pulse 2s infinite'
+                }}
+              ></div>
+              <p style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px', margin: 0 }}>
+                Online
+              </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
+        <button
+          onClick={onClose}
+          style={{
+            color: 'white',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+          }}
+        >
+          <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white">
-          {messages.map((message) => (
-            <motion.div
-              key={message.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`max-w-[80%] ${message.isUser ? 'order-2' : 'order-1'}`}>
-                <div
-                  className={`px-4 py-3 rounded-2xl ${
-                    message.isUser
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-br-md'
-                      : 'bg-white text-gray-800 rounded-bl-md shadow-sm border border-gray-100'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed">{message.text}</p>
-                  {message.confidence && (
-                    <p className="text-xs opacity-70 mt-1">
-                      Confidence: {(message.confidence * 100).toFixed(0)}%
-                    </p>
-                  )}
+      {/* Messages */}
+      <div 
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '16px',
+          background: 'linear-gradient(to bottom, rgba(249, 250, 251, 0.5), white)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px'
+        }}
+      >
+        {messages.map((message) => (
+          <motion.div
+            key={message.id}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={{
+              display: 'flex',
+              justifyContent: message.isUser ? 'flex-end' : 'flex-start'
+            }}
+          >
+            <div style={{ maxWidth: '85%' }}>
+              {!message.isUser && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div 
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <svg style={{ width: '12px', height: '12px', color: '#fbbf24' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.09z" />
+                    </svg>
+                  </div>
+                  <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>
+                    AI Assistant
+                  </span>
                 </div>
-                
-                {message.suggestions && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {message.suggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-3 py-1 text-xs bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors border border-indigo-200"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
+              )}
+              
+              <div
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: '16px',
+                  ...(message.isUser 
+                    ? {
+                        background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                        color: 'white',
+                        borderBottomRightRadius: '4px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }
+                    : {
+                        backgroundColor: 'white',
+                        color: '#1f2937',
+                        borderBottomLeftRadius: '4px',
+                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                        border: '1px solid #f3f4f6'
+                      })
+                }}
+              >
+                <p style={{ fontSize: '14px', lineHeight: '1.5', margin: 0 }}>
+                  {message.text}
+                </p>
+                {message.confidence && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
+                    <div 
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#10b981',
+                        borderRadius: '50%'
+                      }}
+                    ></div>
+                    <p style={{ fontSize: '12px', opacity: 0.7, margin: 0 }}>
+                      {(message.confidence * 100).toFixed(0)}% confident
+                    </p>
                   </div>
                 )}
               </div>
-            </motion.div>
-          ))}
-          
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-white rounded-2xl rounded-bl-md shadow-sm border border-gray-100 px-4 py-3">
-                <div className="flex items-center space-x-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              
+              {message.suggestions && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
+                  {message.suggestions.map((suggestion, index) => (
+                    <motion.button
+                      key={index}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        background: 'linear-gradient(to right, #dbeafe, #e0e7ff)',
+                        color: '#1d4ed8',
+                        borderRadius: '20px',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = 'linear-gradient(to right, #bfdbfe, #c7d2fe)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'linear-gradient(to right, #dbeafe, #e0e7ff)';
+                      }}
+                    >
+                      {suggestion}
+                    </motion.button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        ))}
+        
+        {isLoading && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ display: 'flex', justifyContent: 'flex-start' }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <div 
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <svg style={{ width: '12px', height: '12px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.09z" />
+                  </svg>
+                </div>
+                <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>
+                  AI Assistant
+                </span>
+              </div>
+              <div 
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: '16px',
+                  borderBottomLeftRadius: '4px',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  border: '1px solid #f3f4f6',
+                  padding: '12px 16px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <div 
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#3b82f6',
+                        borderRadius: '50%',
+                        animation: 'bounce 1s infinite'
+                      }}
+                    ></div>
+                    <div 
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: '50%',
+                        animation: 'bounce 1s infinite 0.1s'
+                      }}
+                    ></div>
+                    <div 
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#4f46e5',
+                        borderRadius: '50%',
+                        animation: 'bounce 1s infinite 0.2s'
+                      }}
+                    ></div>
                   </div>
-                  <span className="text-sm text-gray-500">Thinking...</span>
+                  <span style={{ fontSize: '14px', color: '#6b7280' }}>Thinking...</span>
                 </div>
               </div>
             </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
+          </motion.div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
 
-        {/* Input */}
-        <div className="p-4 bg-white border-t border-gray-100">
-          <div className="flex items-center space-x-3">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
-                disabled={isLoading}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-800 placeholder-gray-500"
-              />
-            </div>
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
+      {/* Input */}
+      <div 
+        style={{
+          padding: '16px',
+          backgroundColor: 'white',
+          borderTop: '1px solid #f3f4f6'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your message..."
+              disabled={isLoading}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                backgroundColor: '#f9fafb',
+                border: '1px solid #e5e7eb',
+                borderRadius: '16px',
+                outline: 'none',
+                color: '#1f2937',
+                fontSize: '14px',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3b82f6';
+                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#e5e7eb';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
           </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isLoading}
+            style={{
+              padding: '12px',
+              background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '16px',
+              cursor: inputValue.trim() && !isLoading ? 'pointer' : 'not-allowed',
+              opacity: inputValue.trim() && !isLoading ? 1 : 0.5,
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              if (inputValue.trim() && !isLoading) {
+                e.target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            }}
+          >
+            <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </motion.button>
         </div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </motion.div>
   );
 };
 
@@ -368,19 +489,25 @@ const ChatTrigger = ({ onClick }) => {
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center z-[999]"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       style={{
-        boxShadow: '0 10px 25px -5px rgba(79, 70, 229, 0.4)'
+        position: "fixed",
+        bottom: "24px",
+        right: "24px",
+        width: "64px",
+        height: "64px",
+        zIndex: 9998,
+        transformOrigin: "center",
       }}
+      className="bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-600 text-white rounded-full shadow-2xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
     >
       <motion.div
         animate={isHovered ? { rotate: [0, -10, 10, -10, 0] } : {}}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
         className="relative z-10"
       >
-        <svg 
+        {/* <svg 
           className="w-7 h-7" 
           fill="none" 
           stroke="currentColor" 
@@ -388,32 +515,46 @@ const ChatTrigger = ({ onClick }) => {
           style={{
             filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
           }}
+        > */}
+        <svg
+          className="w-7 h-7 text-yellow-400 transition-all duration-300"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          style={{
+            filter: isHovered
+              ? "drop-shadow(0 0 8px rgba(255,215,0,0.9))"
+              : "drop-shadow(0 1px 2px rgba(255,215,0,0.4))",
+          }}
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
           />
         </svg>
       </motion.div>
-      
+
       {isPulsing && (
-        <motion.div 
-          className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500"
+        <motion.div
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-purple-500 to-indigo-500"
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.6, 0.8, 0.6]
+            scale: [1, 1.3, 1],
+            opacity: [0.6, 0.8, 0.6],
           }}
           transition={{
             duration: 2,
             repeat: Infinity,
-            ease: 'easeInOut'
+            ease: "easeInOut",
           }}
         />
       )}
-      
-      <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>
+
+      {/* Notification dot */}
+      <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white flex items-center justify-center">
+        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+      </div>
     </motion.button>
   );
 };

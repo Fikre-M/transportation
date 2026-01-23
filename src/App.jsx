@@ -17,7 +17,6 @@ import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import LoadingScreen from "./components/common/LoadingScreen";
 import ChatBot, { ChatTrigger } from "./components/ai/ChatBot";
-import AppRating from "./components/common/AppRating";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import config from "./config/config";
 import { queryClient } from "./lib/queryClient";
@@ -218,7 +217,6 @@ const PublicRoute = ({ children }) => {
 
 const AppRoutes = () => {
   const [chatOpen, setChatOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
 
   return (
     <>
@@ -257,9 +255,6 @@ const AppRoutes = () => {
       {/* AI ChatBot - Available globally on all pages */}
       <ChatTrigger onClick={() => setChatOpen(true)} />
       <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
-      
-      {/* App Rating Component */}
-      <AppRating />
     </>
   );
 };
@@ -286,8 +281,6 @@ const GlobalErrorHandler = ({ children }) => {
 };
 
 const App = () => {
-  const [chatOpen, setChatOpen] = useState(false);
-  
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -308,13 +301,6 @@ const App = () => {
                   <Suspense fallback={<LoadingScreen />}>
                     <AppRoutes />
                   </Suspense>
-                  
-                  {/* AI ChatBot - Available globally on all pages */}
-                  <ChatTrigger onClick={() => setChatOpen(true)} />
-                  <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
-                  
-                  {/* App Rating Component */}
-                  <AppRating />
                   
                   <Toaster position="top-right" />
                 </AuthProvider>
