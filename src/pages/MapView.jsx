@@ -154,8 +154,7 @@ const MapView = () => {
                     Distance: `${vehicle.distance.toFixed(1)} km`,
                   },
                   onClick: () => handleVehicleSelect(vehicle),
-                }))}
-                routes={showRoutes && filteredVehicles
+                }))}routes={showRoutes && filteredVehicles
                   .filter(v => v.status === 'moving')
                   .map(vehicle => ({
                     coordinates: [
@@ -169,7 +168,6 @@ const MapView = () => {
                     weight: 2,
                     opacity: 0.6,
                   }))}
-                onMapClick={() => setSelectedVehicle(null)}
               />
             )}
           </Paper>

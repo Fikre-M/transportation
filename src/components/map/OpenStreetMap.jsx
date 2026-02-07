@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import { Box, Typography, CircularProgress } from '@mui/material';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // Fix Leaflet's default icon issue with webpack
 delete L.Icon.Default.prototype._getIconUrl;
@@ -38,7 +38,6 @@ const OpenStreetMap = ({
   markers = [],
   routes = [],
   onMapClick,
-  onMarkerClick,
   showControls = true,
   className = '',
 }) => {
@@ -90,7 +89,6 @@ const OpenStreetMap = ({
         center={center}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
-        onClick={onMapClick}
       >
         {/* OpenStreetMap Tiles - 100% Free */}
         <TileLayer
@@ -118,9 +116,12 @@ const OpenStreetMap = ({
           <Marker
             key={`marker-${index}`}
             position={marker.position}
-            icon={marker.icon}
             eventHandlers={{
-              click: () => onMarkerClick && onMarkerClick(marker, index),
+              click: () => {
+                if (marker.onClick) {
+                  marker.onClick(marker, index);
+                }
+              },
             }}
           >
             <Popup>
