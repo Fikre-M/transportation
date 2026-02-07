@@ -223,13 +223,13 @@ const RouteOptimizer = () => {
                 <Grid container spacing={2} sx={{ mb: 3 }}>
                   <Grid item xs={6}>
                     <Box sx={{ display: 'flex', alignItems: 'center', p: 1, backgroundColor: 'background.default', borderRadius: 1 }}>
-                      <SpeedIcon sx={{ mr: 1, color: 'primary.main' }} />
+                      <RouteIcon sx={{ mr: 1, color: 'primary.main' }} />
                       <Box>
                         <Typography variant="body2" color="text.secondary">
                           Est. Time
                         </Typography>
                         <Typography variant="h6">
-                          {optimization.optimizedRoute.estimatedTime} min
+                          {optimization.estimatedTime} min
                         </Typography>
                       </Box>
                     </Box>
@@ -243,11 +243,38 @@ const RouteOptimizer = () => {
                           Distance
                         </Typography>
                         <Typography variant="h6">
-                          {optimization.optimizedRoute.estimatedDistance} km
+                          {optimization.estimatedDistance} km
                         </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                {/* Route Display on Map */}
+                <Box sx={{ mt: 3 }}>
+                  <RouteDisplay
+                    routes={[
+                      {
+                        coordinates: [
+                          [9.0054, 38.7636],
+                          [9.0154, 38.7736]
+                        ],
+                        estimatedTime: optimization.estimatedTime,
+                        estimatedDistance: optimization.estimatedDistance,
+                        trafficConditions: optimization.trafficConditions,
+                        fuelEfficiency: optimization.fuelEfficiency
+                      }
+                    ]}
+                    height="300px"
+                  />
+                </Box>
+              </Paper>
+            </motion.div>
+          )}
+        </Grid>
       </Grid>
-    </Grid>
-  </Box>
-);
+    </Box>
+  );
+};
 
 export default RouteOptimizer;

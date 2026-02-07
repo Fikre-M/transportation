@@ -9,6 +9,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
+import L from 'leaflet';
 import OpenStreetMap from './OpenStreetMap';
 
 const RouteDisplay = ({ 
