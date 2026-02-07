@@ -202,17 +202,87 @@
 //     </MapContainer>
 //   );
 // };
-
-// export default RealTimeMap;
-
-
 // src/components/dashboard/RealTimeMap.jsx
-import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Button } from '@mui/material';
-import { Truck, MapPin } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Box, Typography, Paper, Button, IconButton, Tooltip, Chip } from '@mui/material';
+import { Truck, MapPin, RefreshCw, Info, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const RealTimeMap = ({ height = 400 }) => {
   const [showMap, setShowMap] = useState(false);
+  const [vehicles, setVehicles] = useState([
+    { id: 1, top: '30%', left: '20%', status: 'available', driver: 'John D.', type: 'Sedan', plate: 'ABC-123' },
+    { id: 2, top: '50%', left: '60%', status: 'in-ride', driver: 'Jane S.', type: 'SUV', plate: 'XYZ-789' },
+    { id: 3, top: '70%', left: '40%', status: 'offline', driver: 'Mike T.', type: 'Van', plate: 'DEF-456' },
+    { id: 4, top: '25%', left: '80%', status: 'available', driver: 'Sarah L.', type: 'Sedan', plate: 'GHI-012' },
+    { id: 5, top: '85%', left: '15%', status: 'maintenance', driver: 'Tom R.', type: 'Van', plate: 'JKL-345' },
+  ]);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isMoving, setIsMoving] = useState(false);
+
+  // Simulate real-time vehicle movement
+  useEffect(() => {
+    if (!showMap || !isMoving) return;
+
+    const interval = setInterval(() => {
+      setVehicles(prevVehicles => 
+        prevVehicles.map(vehicle => {
+          if (vehicle.status === 'available' || vehicle.status === 'in-ride') {
+            // Simulate small random movements
+            const currentTop = parseFloat(vehicle.top);
+            const currentLeft = parseFloat(vehicle.left);
+            const newTop = Math.min(Math.max(currentTop + (Math.random() - 0.5) * 2, 5), 95);
+            const newLeft = Math.min(Math.max(currentLeft + (Math.random() - 0.5) * 2, 5), 95);
+            
+            return {
+              ...vehicle,
+              top: `${newTop}%`,
+              left: `${newLeft}%`,
+              lastUpdate: new Date().toLocaleTimeString()
+            };
+          }
+          return vehicle;
+        })
+      );
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [showMap, isMoving]);
+
+  const handleVehicleClick = useCallback((vehicle) => {
+    setSelectedVehicle(vehicle);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setVehicles([
+      { id: 1, top: '30%', left: '20%', status: 'available', driver: 'John D.', type: 'Sedan', plate: 'ABC-123' },
+      { id: 2, top: '50%', left: '60%', status: 'in-ride', driver: 'Jane S.', type: 'SUV', plate: 'XYZ-789' },
+      { id: 3, top: '70%', left: '40%', status: 'offline', driver: 'Mike T.', type: 'Van', plate: 'DEF-456' },
+      { id: 4, top: '25%', left: '80%', status: 'available', driver: 'Sarah L.', type: 'Sedan', plate: 'GHI-012' },
+      { id: 5, top: '85%', left: '15%', status: 'maintenance', driver: 'Tom R.', type: 'Van', plate: 'JKL-345' },
+    ]);
+    setSelectedVehicle(null);
+  }, []);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'available': return '#4caf50';
+      case 'in-ride': return '#2196f3';
+      case 'offline': return '#9e9e9e';
+      case 'maintenance': return '#ff9800';
+      default: return '#757575';
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'available': return 'Available';
+      case 'in-ride': return 'In Ride';
+      case 'offline': return 'Offline';
+      case 'maintenance': return 'Maintenance';
+      default: return 'Unknown';
+    }
+  };
 
   // Simple fallback UI when no map is available
   if (!showMap) {
@@ -242,9 +312,13 @@ const RealTimeMap = ({ height = 400 }) => {
           color="primary"
           onClick={() => setShowMap(true)}
           startIcon={<Truck size={16} />}
+          sx={{ mb: 2 }}
         >
           Show Static Preview
         </Button>
+        <Typography variant="body2" color="text.secondary">
+          Click to see a simulated vehicle tracking map with interactive features
+        </Typography>
       </Paper>
     );
   }
@@ -257,8 +331,46 @@ const RealTimeMap = ({ height = 400 }) => {
         position: 'relative',
         backgroundColor: '#f5f5f5',
         overflow: 'hidden',
+        borderRadius: 2,
       }}
     >
+      {/* Control Panel */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 16,
+          right: 16,
+          zIndex: 20,
+          display: 'flex',
+          gap: 1,
+        }}
+      >
+        <Tooltip title="Toggle Real-time Movement">
+          <IconButton
+            size="small"
+            onClick={() => setIsMoving(!isMoving)}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 1)' },
+            }}
+          >
+            <RefreshCw size={16} className={isMoving ? 'animate-spin' : ''} />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Reset Positions">
+          <IconButton
+            size="small"
+            onClick={handleReset}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 1)' },
+            }}
+          >
+            <MapPin size={16} />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
       {/* Simple static map background */}
       <Box
         sx={{
@@ -289,62 +401,195 @@ const RealTimeMap = ({ height = 400 }) => {
       ))}
 
       {/* Vehicle markers */}
-      {[
-        { id: 1, top: '30%', left: '20%', status: 'available' },
-        { id: 2, top: '50%', left: '60%', status: 'in-ride' },
-        { id: 3, top: '70%', left: '40%', status: 'offline' },
-      ].map((vehicle) => (
-        <Box
+      {vehicles.map((vehicle) => (
+        <motion.div
           key={vehicle.id}
-          sx={{
+          style={{
             position: 'absolute',
             top: vehicle.top,
             left: vehicle.left,
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            backgroundColor:
-              vehicle.status === 'available'
-                ? '#4caf50'
-                : vehicle.status === 'in-ride'
-                ? '#2196f3'
-                : '#9e9e9e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            transform: 'translate(-50%, -50%)',
-            '&:after': {
-              content: '""',
-              position: 'absolute',
+            cursor: 'pointer',
+          }}
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => handleVehicleClick(vehicle)}
+        >
+          <Box
+            sx={{
               width: 32,
               height: 32,
               borderRadius: '50%',
-              backgroundColor: 'currentColor',
-              opacity: 0.2,
-              zIndex: -1,
-            },
-          }}
-        >
-          <Truck size={14} />
-        </Box>
+              backgroundColor: getStatusColor(vehicle.status),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              transform: 'translate(-50%, -50%)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              border: '2px solid white',
+              position: 'relative',
+              '&:after': {
+                content: '""',
+                position: 'absolute',
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: 'currentColor',
+                opacity: 0.2,
+                zIndex: -1,
+              },
+            }}
+          >
+            <Truck size={18} />
+            {isMoving && (vehicle.status === 'available' || vehicle.status === 'in-ride') && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: -8,
+                  right: -8,
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  backgroundColor: '#4caf50',
+                  animation: 'pulse 2s infinite',
+                }}
+              />
+            )}
+          </Box>
+        </motion.div>
       ))}
 
+      {/* Vehicle Status Legend */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: 1,
+          p: 2,
+          boxShadow: 1,
+          zIndex: 10,
+        }}
+      >
+        <Typography variant="subtitle2" gutterBottom>
+          Vehicle Status
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          {['available', 'in-ride', 'offline', 'maintenance'].map((status) => (
+            <Box key={status} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  backgroundColor: getStatusColor(status),
+                }}
+              />
+              <Typography variant="caption">
+                {getStatusLabel(status)}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
+      {/* Selected Vehicle Popup */}
+      <AnimatePresence>
+        {selectedVehicle && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            style={{
+              position: 'absolute',
+              bottom: 16,
+              left: 16,
+              right: 16,
+              zIndex: 15,
+            }}
+          >
+            <Paper
+              sx={{
+                p: 2,
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+              }}
+              elevation={3}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Truck size={20} style={{ color: getStatusColor(selectedVehicle.status) }} />
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {selectedVehicle.driver}
+                  </Typography>
+                </Box>
+                <IconButton
+                  size="small"
+                  onClick={() => setSelectedVehicle(null)}
+                  sx={{ p: 0.5 }}
+                >
+                  <X size={16} />
+                </IconButton>
+              </Box>
+              
+              <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                <Chip
+                  size="small"
+                  label={getStatusLabel(selectedVehicle.status)}
+                  sx={{
+                    backgroundColor: getStatusColor(selectedVehicle.status),
+                    color: 'white',
+                    fontWeight: 'bold',
+                  }}
+                />
+                <Chip
+                  size="small"
+                  label={selectedVehicle.type}
+                  variant="outlined"
+                />
+              </Box>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>Plate:</strong> {selectedVehicle.plate}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>Vehicle ID:</strong> #{selectedVehicle.id.toString().padStart(3, '0')}
+                </Typography>
+                {selectedVehicle.lastUpdate && (
+                  <Typography variant="caption" color="text.secondary">
+                    Last updated: {selectedVehicle.lastUpdate}
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Info Panel */}
       <Box
         sx={{
           position: 'absolute',
           bottom: 16,
-          left: 16,
           right: 16,
-          p: 2,
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
           borderRadius: 1,
+          p: 1.5,
           boxShadow: 1,
+          zIndex: 10,
+          maxWidth: 200,
         }}
       >
-        <Typography variant="body2" color="text.secondary">
-          This is a static preview. For full interactive map functionality, please provide a Mapbox access token in your
-          .env file as <code>VITE_MAPBOX_TOKEN</code>.
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <Info size={16} color="#666" />
+          <Typography variant="caption" fontWeight="bold">
+            Interactive Preview
+          </Typography>
+        </Box>
+        <Typography variant="caption" color="text.secondary">
+          Click on vehicles to see details. Use controls to simulate movement.
         </Typography>
       </Box>
     </Box>
