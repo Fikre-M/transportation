@@ -16,6 +16,7 @@ import {
 import {
   CloudUpload as UploadIcon,
   Edit as EditIcon,
+  CameraAlt as CameraIcon,
   Delete as DeleteIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
@@ -220,8 +221,9 @@ const ImageUpload = ({
                   bottom: 0,
                   backgroundColor: 'rgba(0, 0, 0, 0.5)',
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-end',
                   justifyContent: 'center',
+                  paddingBottom: '8px',
                   opacity: 0,
                   transition: 'opacity 0.3s ease',
                   '&:hover': { opacity: 1 },
@@ -237,7 +239,7 @@ const ImageUpload = ({
                       }}
                       sx={{ color: 'white', backgroundColor: 'rgba(255,255,255,0.2)' }}
                     >
-                      <EditIcon />
+                      <CameraIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Remove Image">
