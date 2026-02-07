@@ -1,7 +1,9 @@
-// AI Service Layer - Handles all AI/ML API interactions
+// AI Service Layer - Handles all AI/ML API interactions with TensorFlow.js
 import axios from 'axios';
+import MLAIService from '../ai/services/MLAIService';
 
 const AI_API_BASE = import.meta.env.VITE_AI_API_URL || 'http://localhost:8001/api/ai';
+const USE_ML_MODELS = import.meta.env.VITE_USE_ML_MODELS !== 'false'; // Default to true
 
 class AIService {
   constructor() {
@@ -21,17 +23,18 @@ class AIService {
       }
       return config;
     });
+
+    // Initialize ML Service
+    this.mlService = MLAIService;
+    this.mlInitialized = false;
   }
 
   // AI Chat Interface
   async sendChatMessage(message, context = {}) {
     try {
-      const response = await this.apiClient.post('/chat', {
-        message,
-        context,
-        timestamp: new Date().toISOString(),
-      });
-      return response.data;
+      // For now, use mock response for chat
+      // TODO: Implement TensorFlow.js chat model
+      return this.mockChatResponse(message);
     } catch (error) {
       console.error('Chat AI error:', error);
       // Fallback to mock response
@@ -42,6 +45,14 @@ class AIService {
   // Route Optimization
   async optimizeRoute(waypoints, preferences = {}) {
     try {
+      if (USE_ML_MODELS) {
+        if (!this.mlInitialized) {
+          await this.mlService.initialize();
+          this.mlInitialized = true;
+        }
+        return await this.mlService.optimizeRoute(waypoints, preferences);
+      }
+      
       const response = await this.apiClient.post('/route-optimization', {
         waypoints,
         preferences: {
@@ -61,6 +72,14 @@ class AIService {
   // Demand Prediction
   async predictDemand(location, timeRange) {
     try {
+      if (USE_ML_MODELS) {
+        if (!this.mlInitialized) {
+          await this.mlService.initialize();
+          this.mlInitialized = true;
+        }
+        return await this.mlService.predictDemand(location, timeRange);
+      }
+      
       const response = await this.apiClient.post('/demand-prediction', {
         location,
         timeRange,
@@ -76,6 +95,14 @@ class AIService {
   // Dynamic Pricing
   async calculateDynamicPrice(tripDetails) {
     try {
+      if (USE_ML_MODELS) {
+        if (!this.mlInitialized) {
+          await this.mlService.initialize();
+          this.mlInitialized = true;
+        }
+        return await this.mlService.calculateDynamicPrice(tripDetails);
+      }
+      
       const response = await this.apiClient.post('/dynamic-pricing', {
         ...tripDetails,
         timestamp: new Date().toISOString(),
@@ -90,6 +117,14 @@ class AIService {
   // Smart Matching
   async matchDriverPassenger(passengerRequest) {
     try {
+      if (USE_ML_MODELS) {
+        if (!this.mlInitialized) {
+          await this.mlService.initialize();
+          this.mlInitialized = true;
+        }
+        return await this.mlService.matchDriverPassenger(passengerRequest);
+      }
+      
       const response = await this.apiClient.post('/smart-matching', {
         ...passengerRequest,
         algorithm: 'ml-optimized',
@@ -104,6 +139,14 @@ class AIService {
   // Predictive Analytics
   async getPredictiveAnalytics(timeframe = '24h') {
     try {
+      if (USE_ML_MODELS) {
+        if (!this.mlInitialized) {
+          await this.mlService.initialize();
+          this.mlInitialized = true;
+        }
+        return await this.mlService.getPredictiveAnalytics(timeframe);
+      }
+      
       const response = await this.apiClient.get(`/predictive-analytics?timeframe=${timeframe}`);
       return response.data;
     } catch (error) {

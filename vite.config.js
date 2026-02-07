@@ -21,7 +21,12 @@ export default defineConfig(({ mode }) => {
       react({
         jsxImportSource: "@emotion/react",
         babel: {
-          plugins: ["@emotion/babel-plugin"],
+          plugins: [
+            ["@emotion/babel-plugin", { 
+              sourceMap: true,
+              autoLabel: "dev-only"
+            }]
+          ],
         },
       }),
     ],
@@ -65,6 +70,9 @@ export default defineConfig(({ mode }) => {
         "@emotion/react",
         "@emotion/styled",
         "@mui/material",
+        "@mui/material/styles",
+        "@mui/icons-material",
+        "@mui/system",
         "jwt-decode",
         "lucide-react",
       ],
