@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useCallback } from "react";
+import { Suspense, lazy, useState, useCallback, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -218,6 +218,23 @@ const PublicRoute = ({ children }) => {
 
 const AppRoutes = () => {
   const [chatOpen, setChatOpen] = useState(false);
+
+  // Keyboard shortcut: Cmd/Ctrl + K to toggle chat
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setChatOpen(prev => !prev);
+      }
+      // Escape to close
+      if (e.key === 'Escape' && chatOpen) {
+        setChatOpen(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [chatOpen]);
 
   return (
     <>
