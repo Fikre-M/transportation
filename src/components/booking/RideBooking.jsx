@@ -457,58 +457,85 @@ const RideBooking = () => {
               )}
             </Paper>
 
-            {bookingConfirmed && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                style={{ 
-                  position: 'fixed',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 9999
-                }}
-              >
-                <Paper sx={{ 
-                  p: 4, 
-                  minWidth: 350,
-                  background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
-                  color: 'white',
-                  textAlign: 'center',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-                }}>
-                  <Typography variant="h4" gutterBottom fontWeight="bold">
-                    🎉 Booking Confirmed!
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Your driver {matchedDriver?.name} will arrive in {selectedVehicle?.eta}
-                  </Typography>
-                  <Typography variant="body2">
-                    Booking ID: #{Math.floor(Math.random() * 1000000)}
-                  </Typography>
-                  <Typography variant="caption" sx={{ mt: 1 }}>
-                    You can track your ride in the Map View
-                  </Typography>
-                  <Box sx={{ mt: 2 }}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => setBookingConfirmed(false)}
-                      sx={{ 
-                        borderColor: 'white',
-                        color: 'white',
-                        '&:hover': {
-                          borderColor: 'white',
-                          backgroundColor: 'rgba(255,255,255,0.1)'
-                        }
-                      }}
-                    >
-                      Close
-                    </Button>
-                  </Box>
-                </Paper>
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {bookingConfirmed && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{ 
+                      position: 'fixed',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: 'rgba(0,0,0,0.7)',
+                      zIndex: 9998
+                    }}
+                    onClick={() => setBookingConfirmed(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                    transition={{ duration: 0.5, type: 'spring' }}
+                    style={{ 
+                      position: 'fixed',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      zIndex: 9999,
+                      maxWidth: '90vw'
+                    }}
+                  >
+                    <Paper sx={{ 
+                      p: 4, 
+                      minWidth: 350,
+                      background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+                      color: 'white',
+                      textAlign: 'center',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                      borderRadius: 3
+                    }}>
+                      <Typography variant="h3" gutterBottom fontWeight="bold">
+                        🎉
+                      </Typography>
+                      <Typography variant="h4" gutterBottom fontWeight="bold">
+                        Booking Confirmed!
+                      </Typography>
+                      <Typography variant="body1" sx={{ mb: 2, fontSize: '1.1rem' }}>
+                        Your driver {matchedDriver?.name} will arrive in {selectedVehicle?.eta}
+                      </Typography>
+                      <Typography variant="h6" sx={{ mb: 1 }}>
+                        Booking ID: #{Math.floor(Math.random() * 1000000)}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mt: 2, opacity: 0.9 }}>
+                        You can track your ride in the Map View
+                      </Typography>
+                      <Box sx={{ mt: 3 }}>
+                        <Button
+                          variant="contained"
+                          size="large"
+                          onClick={() => setBookingConfirmed(false)}
+                          sx={{ 
+                            backgroundColor: 'white',
+                            color: '#2e7d32',
+                            fontWeight: 'bold',
+                            px: 4,
+                            '&:hover': {
+                              backgroundColor: 'rgba(255,255,255,0.9)'
+                            }
+                          }}
+                        >
+                          Got it!
+                        </Button>
+                      </Box>
+                    </Paper>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </Box>
         );
 

@@ -178,7 +178,7 @@ const Dashboard = () => {
 
       {/* Map and Events Row */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8} lg={7}>
+        <Grid item xs={12} md={8}>
           <SectionTitle variant="h6">Live Vehicle Tracking</SectionTitle>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -198,7 +198,7 @@ const Dashboard = () => {
           </motion.div>
         </Grid>
 
-        <Grid item xs={12} md={4} lg={5}>
+        <Grid item xs={12} md={4}>
           <SectionTitle variant="h6">Recent Events</SectionTitle>
           <motion.div
             initial={{ opacity: 0, y: 20 }}

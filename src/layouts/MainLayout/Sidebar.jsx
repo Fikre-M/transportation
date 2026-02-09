@@ -84,7 +84,7 @@ const Sidebar = ({ mobileOpen, onDrawerToggle, isCollapsed }) => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: isCollapsed && !isMobile ? 'center' : 'space-between',
+          justifyContent: 'center',
           p: 2,
           minHeight: HEADER_HEIGHT,
           borderBottom: 1,
@@ -105,11 +105,6 @@ const Sidebar = ({ mobileOpen, onDrawerToggle, isCollapsed }) => {
         )}
         {(isCollapsed && !isMobile) && (
           <LocalTaxiIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-        )}
-        {!isMobile && (
-          <IconButton onClick={(e) => { e.stopPropagation(); onDrawerToggle(); }} size="small">
-            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
-          </IconButton>
         )}
       </Box>
 

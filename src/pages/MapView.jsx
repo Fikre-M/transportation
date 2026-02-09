@@ -11,6 +11,9 @@ import {
   Button,
   Select,
   MenuItem,
+  TextField,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
 import {
   LocationOn as LocationIcon,
@@ -18,6 +21,9 @@ import {
   LocalTaxi as TaxiIcon,
   FilterList as FilterIcon,
   Refresh as RefreshIcon,
+  MyLocation as MyLocationIcon,
+  SwapVert as SwapIcon,
+  Navigation as NavigationIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import OpenStreetMap from '../components/map/OpenStreetMap';
@@ -30,6 +36,9 @@ const MapView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [showRoutes, setShowRoutes] = useState(true);
+  const [fromLocation, setFromLocation] = useState('');
+  const [toLocation, setToLocation] = useState('');
+  const [routeActive, setRouteActive] = useState(false);
 
   // Simulate real-time vehicle data
   useEffect(() => {
@@ -98,6 +107,39 @@ const MapView = () => {
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);
+  };
+
+  const handleSwapLocations = () => {
+    const temp = fromLocation;
+    setFromLocation(toLocation);
+    setToLocation(temp);
+  };
+
+  const handleGetCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFromLocation(`Current Location (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`);
+          setMapCenter([position.coords.latitude, position.coords.longitude]);
+        },
+        (error) => {
+          console.error('Unable to get location:', error);
+        }
+      );
+    }
+  };
+
+  const handleShowRoute = () => {
+    if (fromLocation && toLocation) {
+      setRouteActive(true);
+      // In a real app, you would calculate and display the route here
+    }
+  };
+
+  const handleClearRoute = () => {
+    setFromLocation('');
+    setToLocation('');
+    setRouteActive(false);
   };
 
   const getStatusColor = (status) => {
@@ -197,6 +239,89 @@ const MapView = () => {
                 <Typography variant="body2">Total</Typography>
                 <Chip label={vehicles.length} color="primary" size="small" />
               </Box>
+            </Box>
+          </Paper>
+
+          {/* Route Planning */}
+          <Paper sx={{ p: 2, mb: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Route Planning
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="From"
+                placeholder="Enter pickup location"
+                value={fromLocation}
+                onChange={(e) => setFromLocation(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocationIcon color="success" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={handleGetCurrentLocation}>
+                        <MyLocationIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <IconButton size="small" onClick={handleSwapLocations}>
+                  <SwapIcon />
+                </IconButton>
+              </Box>
+
+              <TextField
+                fullWidth
+                size="small"
+                label="To"
+                placeholder="Enter destination"
+                value={toLocation}
+                onChange={(e) => setToLocation(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocationIcon color="error" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="small"
+                  startIcon={<NavigationIcon />}
+                  onClick={handleShowRoute}
+                  disabled={!fromLocation || !toLocation}
+                >
+                  Show Route
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleClearRoute}
+                  disabled={!fromLocation && !toLocation}
+                >
+                  Clear
+                </Button>
+              </Box>
+
+              {routeActive && (
+                <Chip
+                  label="Route Active"
+                  color="success"
+                  size="small"
+                  onDelete={handleClearRoute}
+                />
+              )}
             </Box>
           </Paper>
 

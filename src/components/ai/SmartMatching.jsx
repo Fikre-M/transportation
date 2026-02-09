@@ -305,6 +305,15 @@ const SmartMatching = () => {
                     size="large"
                     fullWidth
                     startIcon={<CheckIcon />}
+                    onClick={() => {
+                      alert(`Ride confirmed with ${matching.matchedDriver.name}! Your driver will arrive in ${matching.matchedDriver.eta} minutes.`);
+                    }}
+                    sx={{
+                      background: 'linear-gradient(135deg, #1976d2 0%, #4caf50 100%)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #1565c0 0%, #388e3c 100%)',
+                      }
+                    }}
                   >
                     Confirm Ride with {matching.matchedDriver.name}
                   </Button>
