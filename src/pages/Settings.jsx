@@ -13,6 +13,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { PageContainer, PageHeader } from '../components/layout';
 import {
@@ -39,6 +41,12 @@ const Settings = () => {
       theme: 'light',
       currency: 'USD',
     },
+  });
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
   });
 
   const handleNotificationChange = (field) => (event) => {
@@ -74,6 +82,20 @@ const Settings = () => {
   const handleSave = () => {
     // Save settings logic here
     console.log('Settings saved:', settings);
+    
+    // Show success message
+    setSnackbar({
+      open: true,
+      message: 'Settings saved successfully!',
+      severity: 'success',
+    });
+    
+    // In a real app, you would save to backend here
+    // Example: await api.saveSettings(settings);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -217,6 +239,18 @@ const Settings = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Success Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </PageContainer>
   );
 };

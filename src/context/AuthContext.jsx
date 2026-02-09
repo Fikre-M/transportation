@@ -239,12 +239,19 @@ export const AuthProvider = ({ children }) => {
   );
 
   const logout = useCallback(() => {
+    // Clear auth data immediately
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
-    navigate('/login');
-    toast.success('Successfully logged out');
+    
+    // Navigate immediately without waiting
+    navigate('/login', { replace: true });
+    
+    // Show toast after navigation
+    setTimeout(() => {
+      toast.success('Successfully logged out');
+    }, 100);
   }, [navigate]);
 
   // Upload user profile image

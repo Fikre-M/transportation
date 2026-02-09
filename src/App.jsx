@@ -34,6 +34,7 @@ if (config.analytics.sentryDsn) {
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -268,6 +269,14 @@ const AppRoutes = () => {
                 <Register />
               </Suspense>
             </PublicRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <Suspense fallback={<LoadingScreen message="Loading..." size="medium" fullScreen={false} />}>
+              <ForgotPassword />
+            </Suspense>
           }
         />
         <Route

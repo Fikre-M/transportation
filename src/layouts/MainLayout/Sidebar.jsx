@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Drawer, 
   List, 
@@ -22,6 +22,7 @@ import {
   DirectionsCar,
   LocalShipping as DispatchIcon,
   Settings as SettingsIcon,
+  LocalTaxi as LocalTaxiIcon,
   ChevronLeft,
   ChevronRight,
 } from '@mui/icons-material';
@@ -65,6 +66,7 @@ const menuItems = [
 const Sidebar = ({ mobileOpen, onDrawerToggle, isCollapsed }) => {
   const theme = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Auto-close mobile drawer on navigation
@@ -76,8 +78,9 @@ const Sidebar = ({ mobileOpen, onDrawerToggle, isCollapsed }) => {
 
   const drawerContent = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Logo/Brand */}
+      {/* Logo/Brand - Clickable */}
       <Box
+        onClick={() => navigate('/dashboard')}
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -86,15 +89,25 @@ const Sidebar = ({ mobileOpen, onDrawerToggle, isCollapsed }) => {
           minHeight: HEADER_HEIGHT,
           borderBottom: 1,
           borderColor: 'divider',
+          cursor: 'pointer',
+          '&:hover': {
+            bgcolor: 'action.hover',
+          },
         }}
       >
         {(!isCollapsed || isMobile) && (
-          <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
-            AI Rideshare
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LocalTaxiIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+            <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
+              AI Rideshare
+            </Typography>
+          </Box>
+        )}
+        {(isCollapsed && !isMobile) && (
+          <LocalTaxiIcon sx={{ color: 'primary.main', fontSize: 28 }} />
         )}
         {!isMobile && (
-          <IconButton onClick={onDrawerToggle} size="small">
+          <IconButton onClick={(e) => { e.stopPropagation(); onDrawerToggle(); }} size="small">
             {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         )}
