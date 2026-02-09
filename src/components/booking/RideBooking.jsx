@@ -169,7 +169,7 @@ const RideBooking = () => {
     setIsLoading(true);
     try {
       // Simulate booking process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Set booking confirmed state
       setBookingConfirmed(true);

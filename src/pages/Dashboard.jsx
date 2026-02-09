@@ -11,7 +11,7 @@ import EventFeed from '../components/dashboard/EventFeed';
 // Mock API functions
 const fetchDashboardData = async () => {
   // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise(resolve => setTimeout(resolve, 100));
   
   return {
     totalVehicles: 247,

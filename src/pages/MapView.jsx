@@ -106,7 +106,7 @@ const MapView = () => {
     // Simulate refresh
     setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 300);
   };
 
   const handleSwapLocations = () => {
