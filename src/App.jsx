@@ -239,37 +239,51 @@ const AppRoutes = () => {
   return (
     <>
       <ScrollToTop />
-      <Suspense fallback={<LoadingScreen />}>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/not-found" element={<NotFound />} />
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
+      <Routes>
+        <Route path="/" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" fullScreen={false} />}>
+            <LandingPage />
+          </Suspense>
+        } />
+        <Route path="/not-found" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" fullScreen={false} />}>
+            <NotFound />
+          </Suspense>
+        } />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Suspense fallback={<LoadingScreen message="Loading..." size="medium" fullScreen={false} />}>
                 <Login />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <PublicRoute>
+              </Suspense>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Suspense fallback={<LoadingScreen message="Loading..." size="medium" fullScreen={false} />}>
                 <Register />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/dashboard/*"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+              </Suspense>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" fullScreen={false} />}>
+            <NotFound />
+          </Suspense>
+        } />
+      </Routes>
       
       {/* AI ChatBot - Available globally on all pages */}
       <ChatTrigger onClick={() => setChatOpen(true)} />

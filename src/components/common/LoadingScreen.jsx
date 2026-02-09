@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, CircularProgress, LinearProgress, Typography, Fade } from '@mui/material';
+import { Box, CircularProgress, LinearProgress, Typography } from '@mui/material';
 
 /**
  * LoadingScreen component for displaying loading states
@@ -33,28 +33,27 @@ const LoadingScreen = ({
   const progressSize = sizeMap[size] || 60;
 
   return (
-    <Fade in={true} timeout={500}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          backgroundColor: 'background.default',
-          gap: 2,
-          p: 3,
-          ...(fullScreen && {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1400, // Higher than app bar
-          }),
-          ...sx,
-        }}
-      >
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        backgroundColor: 'background.default',
+        gap: 2,
+        p: 3,
+        ...(fullScreen && {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1400,
+        }),
+        ...sx,
+      }}
+    >
         {showProgress && (
           <Box sx={{ position: 'relative', display: 'inline-flex' }}>
             {linear ? (
@@ -109,8 +108,7 @@ const LoadingScreen = ({
             {message}
           </Typography>
         )}
-      </Box>
-    </Fade>
+    </Box>
   );
 };
 

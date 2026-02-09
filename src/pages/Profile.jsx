@@ -37,6 +37,7 @@ import {
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { PageContainer, PageHeader } from '../components/layout';
 import ImageUpload from '../components/common/ImageUpload';
 
 const ProfileCard = styled(Card)(({ theme }) => ({
@@ -188,10 +189,11 @@ const Profile = () => {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold">
-        My Profile
-      </Typography>
+    <PageContainer>
+      <PageHeader
+        title="My Profile"
+        subtitle="Manage your account settings and preferences"
+      />
 
       <Grid container spacing={3}>
         {/* Profile Header */}
@@ -530,7 +532,7 @@ const Profile = () => {
           </Paper>
         </Grid>
       </Grid>
-    </Box>
+    </PageContainer>
   );
 };
 

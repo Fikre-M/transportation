@@ -10,6 +10,7 @@ const Analytics = lazy(() => import('../Analytics'));
 const Dispatch = lazy(() => import('../Dispatch'));
 const MapView = lazy(() => import('../MapView'));
 const Profile = lazy(() => import('../Profile'));
+const Settings = lazy(() => import('../Settings'));
 
 /**
  * Dashboard - Main dashboard container using MainLayout
@@ -17,20 +18,47 @@ const Profile = lazy(() => import('../Profile'));
  */
 const Dashboard = () => {
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <Routes>
-        {/* Wrap all dashboard routes with MainLayout */}
-        <Route element={<MainLayout />}>
-          <Route index element={<DashboardHome />} />
-          <Route path="book" element={<BookRide />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="dispatch" element={<Dispatch />} />
-          <Route path="map" element={<MapView />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Route>
-      </Routes>
-    </Suspense>
+    <Routes>
+      {/* Wrap all dashboard routes with MainLayout */}
+      <Route element={<MainLayout />}>
+        <Route index element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" />}>
+            <DashboardHome />
+          </Suspense>
+        } />
+        <Route path="book" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" />}>
+            <BookRide />
+          </Suspense>
+        } />
+        <Route path="analytics" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" />}>
+            <Analytics />
+          </Suspense>
+        } />
+        <Route path="dispatch" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" />}>
+            <Dispatch />
+          </Suspense>
+        } />
+        <Route path="map" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" />}>
+            <MapView />
+          </Suspense>
+        } />
+        <Route path="profile" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" />}>
+            <Profile />
+          </Suspense>
+        } />
+        <Route path="settings" element={
+          <Suspense fallback={<LoadingScreen message="Loading..." size="medium" />}>
+            <Settings />
+          </Suspense>
+        } />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Route>
+    </Routes>
   );
 };
 

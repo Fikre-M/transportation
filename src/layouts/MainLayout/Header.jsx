@@ -27,9 +27,9 @@ import {
 import { useAuth } from '@/context/AuthContext';
 
 // Constants
-import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from '../../constants/layout';
+import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED, HEADER_HEIGHT } from '../../constants/layout';
 
-const Header = ({ onDrawerToggle, onToggleCollapse, isCollapsed }) => {
+const Header = ({ onDrawerToggle, onToggleCollapse, isCollapsed, drawerWidth }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifications] = useState([1, 2, 3]); // Mock notifications
   const { user, logout } = useAuth();
@@ -95,8 +95,9 @@ const Header = ({ onDrawerToggle, onToggleCollapse, isCollapsed }) => {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${isCollapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH}px)` },
-          ml: { sm: `${isCollapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH}px` },
+          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+          ml: { xs: 0, md: `${drawerWidth}px` },
+          height: HEADER_HEIGHT,
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
@@ -106,25 +107,17 @@ const Header = ({ onDrawerToggle, onToggleCollapse, isCollapsed }) => {
           color: 'text.primary',
           borderBottom: '1px solid',
           borderColor: 'divider',
+          zIndex: theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar>
+          {/* Mobile hamburger - only show on mobile */}
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={onDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          
-          <IconButton
-            color="inherit"
-            aria-label="toggle sidebar"
-            edge="start"
-            onClick={onToggleCollapse}
-            sx={{ mr: 2, display: { xs: 'none', sm: 'flex' } }}
+            sx={{ mr: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>

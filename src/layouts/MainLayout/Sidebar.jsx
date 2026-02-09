@@ -7,7 +7,6 @@ import {
   ListItemButton, 
   ListItemIcon, 
   ListItemText, 
-  Collapse,
   Divider,
   Tooltip,
   Typography,
@@ -19,59 +18,16 @@ import {
 import {
   Dashboard as DashboardIcon,
   Map as MapIcon,
-  LocalShipping as FleetIcon,
-  People as DriversIcon,
   Timeline as AnalyticsIcon,
-  Notifications as AlertsIcon,
-  Settings as SettingsIcon,
   DirectionsCar,
   LocalShipping as DispatchIcon,
-  ExpandLess,
-  ExpandMore,
+  Settings as SettingsIcon,
   ChevronLeft,
   ChevronRight,
 } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
 
 // Constants
-import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from '../../constants/layout';
-
-const drawerWidth = DRAWER_WIDTH;
-
-const StyledDrawer = styled(Drawer, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  width: open ? drawerWidth : DRAWER_WIDTH_COLLAPSED,
-  flexShrink: 0,
-  whiteSpace: 'nowrap',
-  transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  '& .MuiDrawer-paper': {
-    width: open ? drawerWidth : DRAWER_WIDTH_COLLAPSED,
-    boxSizing: 'border-box',
-    borderRight: 'none',
-    backgroundColor: theme.palette.background.paper,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    overflowX: 'hidden',
-  },
-  '& .MuiListItemIcon-root': {
-    minWidth: 0,
-    mr: open ? 2 : 'auto',
-    justifyContent: 'center',
-  },
-  '& .MuiListItemText-root': {
-    opacity: open ? 1 : 0,
-    transition: theme.transitions.create('opacity', {
-      easing: theme.transitions.easing.easeInOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-}));
+import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED, HEADER_HEIGHT } from '../../constants/layout';
 
 const menuItems = [
   { 
@@ -99,188 +55,159 @@ const menuItems = [
     icon: <MapIcon />, 
     path: '/dashboard/map',
   },
+  { 
+    text: 'Settings', 
+    icon: <SettingsIcon />, 
+    path: '/dashboard/settings',
+  },
 ];
 
 const Sidebar = ({ mobileOpen, onDrawerToggle, isCollapsed }) => {
   const theme = useTheme();
   const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [openItems, setOpenItems] = useState({});
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Toggle submenu
-  const handleClick = (text) => {
-    setOpenItems(prev => ({
-      ...prev,
-      [text]: !prev[text]
-    }));
-  };
-
-  // Close mobile drawer when route changes
+  // Auto-close mobile drawer on navigation
   useEffect(() => {
-    if (isMobile) {
+    if (isMobile && mobileOpen) {
       onDrawerToggle();
     }
-  }, [location.pathname, isMobile, onDrawerToggle]);
-
-  // Set initial open state for submenus
-  useEffect(() => {
-    const initialOpenState = {};
-    menuItems.forEach(item => {
-      if (item.items) {
-        initialOpenState[item.text] = location.pathname.startsWith(item.path);
-      }
-    });
-    setOpenItems(initialOpenState);
   }, [location.pathname]);
 
   const drawerContent = (
-    <>
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between',
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Logo/Brand */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed && !isMobile ? 'center' : 'space-between',
           p: 2,
-          minHeight: 64,
-          borderBottom: '1px solid',
+          minHeight: HEADER_HEIGHT,
+          borderBottom: 1,
           borderColor: 'divider',
         }}
       >
-        {!isCollapsed && (
-          <Typography variant="h6" noWrap component="div">
-            TransOps
+        {(!isCollapsed || isMobile) && (
+          <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
+            AI Rideshare
           </Typography>
         )}
-        <IconButton onClick={onDrawerToggle} size="small">
-          {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
-        </IconButton>
+        {!isMobile && (
+          <IconButton onClick={onDrawerToggle} size="small">
+            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+          </IconButton>
+        )}
       </Box>
-      
+
       <Divider />
-      
-      <List>
-        {menuItems.map((item) => (
-          <div key={item.text}>
-            <ListItem 
-              disablePadding 
-              sx={{ display: 'block' }}
-              onClick={() => item.items && handleClick(item.text)}
-            >
-              <Tooltip title={isCollapsed ? item.text : ''} placement="right">
+
+      {/* Menu Items */}
+      <List sx={{ flex: 1, overflowY: 'auto', py: 1 }}>
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          
+          return (
+            <ListItem key={item.text} disablePadding sx={{ display: 'block', px: 1 }}>
+              <Tooltip
+                title={isCollapsed && !isMobile ? item.text : ''}
+                placement="right"
+                arrow
+              >
                 <ListItemButton
-                  component={!item.items ? RouterLink : 'div'}
-                  to={!item.items ? item.path : undefined}
-                  selected={location.pathname === item.path}
+                  component={RouterLink}
+                  to={item.path}
+                  selected={isActive}
                   sx={{
                     minHeight: 48,
-                    justifyContent: isCollapsed ? 'center' : 'initial',
+                    justifyContent: isCollapsed && !isMobile ? 'center' : 'initial',
                     px: 2.5,
+                    borderRadius: 1,
+                    '&.Mui-selected': {
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      '&:hover': {
+                        bgcolor: 'primary.dark',
+                      },
+                      '& .MuiListItemIcon-root': {
+                        color: 'primary.contrastText',
+                      },
+                    },
                   }}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
-                      mr: isCollapsed ? 'auto' : 2,
+                      mr: isCollapsed && !isMobile ? 'auto' : 2,
                       justifyContent: 'center',
-                      color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                      color: isActive ? 'inherit' : 'text.secondary',
                     }}
                   >
                     {item.icon}
                   </ListItemIcon>
-                  <ListItemText 
-                    primary={item.text} 
-                    primaryTypographyProps={{
-                      noWrap: true,
-                      color: location.pathname === item.path ? 'primary' : 'inherit',
-                      fontWeight: location.pathname === item.path ? 'medium' : 'regular',
-                    }}
-                  />
-                  {item.items && (openItems[item.text] ? <ExpandLess /> : <ExpandMore />)}
+                  {(!isCollapsed || isMobile) && (
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontSize: '0.875rem',
+                        fontWeight: isActive ? 600 : 400,
+                      }}
+                    />
+                  )}
                 </ListItemButton>
               </Tooltip>
             </ListItem>
-            
-            {item.items && (
-              <Collapse in={openItems[item.text]} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  {item.items.map((subItem) => (
-                    <ListItemButton
-                      key={subItem.text}
-                      component={RouterLink}
-                      to={subItem.path}
-                      selected={location.pathname === subItem.path}
-                      sx={{
-                        pl: isCollapsed ? 2 : 8,
-                        '&.Mui-selected': {
-                          backgroundColor: 'action.selected',
-                          '&:hover': {
-                            backgroundColor: 'action.hover',
-                          },
-                        },
-                      }}
-                    >
-                      <ListItemText 
-                        primary={subItem.text}
-                        primaryTypographyProps={{
-                          variant: 'body2',
-                          noWrap: true,
-                          color: location.pathname === subItem.path ? 'primary' : 'text.secondary',
-                          fontWeight: location.pathname === subItem.path ? 'medium' : 'regular',
-                        }}
-                      />
-                    </ListItemButton>
-                  ))}
-                </List>
-              </Collapse>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </List>
-    </>
+    </Box>
   );
 
   return (
-    <Box
-      component="nav"
-      sx={{ width: { sm: isCollapsed ? DRAWER_WIDTH_COLLAPSED : drawerWidth }, flexShrink: { sm: 0 } }}
-      aria-label="mailbox folders"
-    >
+    <>
       {/* Mobile Drawer */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={onDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile
+          keepMounted: true,
         }}
         sx={{
-          display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': { 
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
-            width: drawerWidth,
-            backgroundColor: 'background.paper',
-            borderRight: 'none',
+            width: DRAWER_WIDTH,
+            bgcolor: 'background.paper',
           },
         }}
       >
         {drawerContent}
       </Drawer>
-      
+
       {/* Desktop Drawer */}
-      <StyledDrawer
+      <Drawer
         variant="permanent"
         sx={{
-          display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': { 
+          display: { xs: 'none', md: 'block' },
+          '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
-            borderRight: 'none',
+            width: isCollapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH,
+            bgcolor: 'background.paper',
+            borderRight: 1,
+            borderColor: 'divider',
+            transition: theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+            overflowX: 'hidden',
           },
         }}
-        open={!isCollapsed}
+        open
       >
         {drawerContent}
-      </StyledDrawer>
-    </Box>
+      </Drawer>
+    </>
   );
 };
 

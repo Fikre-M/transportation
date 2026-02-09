@@ -1,19 +1,41 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 
 // Components
 import Header from './Header';
 import Sidebar from './Sidebar';
 
 // Constants
-import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED, HEADER_HEIGHT } from '../../constants/layout';
+import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from '../../constants/layout';
+
+const drawerWidth = DRAWER_WIDTH;
+
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+  })
+);
 
 const MainLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -23,16 +45,15 @@ const MainLayout = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const drawerWidth = isCollapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
-
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <CssBaseline />
+      
       {/* Header */}
       <Header 
         onDrawerToggle={handleDrawerToggle} 
         onToggleCollapse={toggleCollapse}
         isCollapsed={isCollapsed}
-        drawerWidth={drawerWidth}
       />
       
       {/* Sidebar */}
@@ -43,29 +64,23 @@ const MainLayout = () => {
       />
       
       {/* Main Content */}
-      <Box
-        component="main"
+      <Main 
+        open={!isCollapsed}
         sx={{
           flexGrow: 1,
-          width: {
-            xs: '100%',
-            md: `calc(100% - ${drawerWidth}px)`
-          },
-          ml: {
-            xs: 0,
-            md: `${drawerWidth}px`
-          },
-          minHeight: '100vh',
-          bgcolor: 'background.default',
-          pt: `${HEADER_HEIGHT}px`,
+          p: 3,
+          width: { sm: `calc(100% - ${isCollapsed ? DRAWER_WIDTH_COLLAPSED : drawerWidth}px)` },
+          ml: { sm: `${isCollapsed ? DRAWER_WIDTH_COLLAPSED : drawerWidth}px` },
           transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
         }}
       >
-        <Outlet />
-      </Box>
+        <Box sx={{ mt: 8 }}>
+          <Outlet />
+        </Box>
+      </Main>
     </Box>
   );
 };
