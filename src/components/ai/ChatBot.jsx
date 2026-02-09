@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme, useMediaQuery } from '@mui/material';
 import aiService from '../../services/aiService';
 
 const ChatBot = ({ open, onClose }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -94,18 +97,19 @@ const ChatBot = ({ open, onClose }) => {
       }}
       style={{
         position: 'fixed',
-        bottom: '100px',
-        right: '24px',
-        width: '400px',
-        maxWidth: 'calc(100vw - 48px)',
-        height: '600px',
-        maxHeight: 'calc(100vh - 140px)',
+        bottom: isMobile ? 0 : '100px',
+        right: isMobile ? 0 : '24px',
+        left: isMobile ? 0 : 'auto',
+        width: isMobile ? '100%' : '400px',
+        maxWidth: isMobile ? '100%' : 'calc(100vw - 48px)',
+        height: isMobile ? '100vh' : '600px',
+        maxHeight: isMobile ? '100vh' : 'calc(100vh - 140px)',
         zIndex: 9999,
-        transformOrigin: 'bottom right',
+        transformOrigin: isMobile ? 'center' : 'bottom right',
         backgroundColor: 'white',
-        borderRadius: '16px',
+        borderRadius: isMobile ? 0 : '16px',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        border: '1px solid #e5e7eb',
+        border: isMobile ? 'none' : '1px solid #e5e7eb',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column'

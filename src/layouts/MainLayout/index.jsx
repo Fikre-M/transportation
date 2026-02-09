@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Box, CssBaseline } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -7,7 +8,13 @@ import { useTheme } from '@mui/material/styles';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
-const drawerWidth = 260;
+// Constants
+import { DRAWER_WIDTH } from '../../constants/layout';
+
+// Constants
+import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from '../../constants/layout';
+
+const drawerWidth = DRAWER_WIDTH;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -65,8 +72,8 @@ const MainLayout = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${isCollapsed ? theme.spacing(9) : drawerWidth}px)` },
-          ml: { sm: `${isCollapsed ? theme.spacing(7) : drawerWidth}px` },
+          width: { sm: `calc(100% - ${isCollapsed ? DRAWER_WIDTH_COLLAPSED : drawerWidth}px)` },
+          ml: { sm: `${isCollapsed ? DRAWER_WIDTH_COLLAPSED : drawerWidth}px` },
           transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,

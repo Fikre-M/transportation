@@ -26,6 +26,9 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '@/context/AuthContext';
 
+// Constants
+import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from '../../constants/layout';
+
 const Header = ({ onDrawerToggle, onToggleCollapse, isCollapsed }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifications] = useState([1, 2, 3]); // Mock notifications
@@ -92,8 +95,8 @@ const Header = ({ onDrawerToggle, onToggleCollapse, isCollapsed }) => {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${isCollapsed ? theme.spacing(9) : 260}px)` },
-          ml: { sm: `${isCollapsed ? theme.spacing(7) : 260}px` },
+          width: { sm: `calc(100% - ${isCollapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH}px)` },
+          ml: { sm: `${isCollapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH}px` },
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,

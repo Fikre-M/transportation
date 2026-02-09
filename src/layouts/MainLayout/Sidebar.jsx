@@ -12,6 +12,7 @@ import {
   Tooltip,
   Typography,
   Box,
+  IconButton,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
@@ -30,12 +31,15 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
-const drawerWidth = 260;
+// Constants
+import { DRAWER_WIDTH, DRAWER_WIDTH_COLLAPSED } from '../../constants/layout';
+
+const drawerWidth = DRAWER_WIDTH;
 
 const StyledDrawer = styled(Drawer, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
-  width: open ? drawerWidth : theme.spacing(7) + 1,
+  width: open ? drawerWidth : DRAWER_WIDTH_COLLAPSED,
   flexShrink: 0,
   whiteSpace: 'nowrap',
   transition: theme.transitions.create('width', {
@@ -43,7 +47,7 @@ const StyledDrawer = styled(Drawer, {
     duration: theme.transitions.duration.enteringScreen,
   }),
   '& .MuiDrawer-paper': {
-    width: open ? drawerWidth : theme.spacing(7) + 1,
+    width: open ? drawerWidth : DRAWER_WIDTH_COLLAPSED,
     boxSizing: 'border-box',
     borderRight: 'none',
     backgroundColor: theme.palette.background.paper,
@@ -251,7 +255,7 @@ const Sidebar = ({ mobileOpen, onDrawerToggle, isCollapsed }) => {
   return (
     <Box
       component="nav"
-      sx={{ width: { sm: isCollapsed ? theme.spacing(7) + 1 : drawerWidth }, flexShrink: { sm: 0 } }}
+      sx={{ width: { sm: isCollapsed ? DRAWER_WIDTH_COLLAPSED : drawerWidth }, flexShrink: { sm: 0 } }}
       aria-label="mailbox folders"
     >
       {/* Mobile Drawer */}
