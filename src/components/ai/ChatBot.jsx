@@ -82,9 +82,20 @@ const ChatBot = ({ open, onClose }) => {
 
       addMessage(conversation.id, botMessage);
     } catch (error) {
+      console.error('Chat error:', error);
+      
+      let errorText = "Sorry, I'm having trouble connecting to the AI service.";
+      
+      // Check if it's a quota error
+      if (error.message?.includes('quota') || error.message?.includes('429')) {
+        errorText = "⚠️ API Quota Exceeded\n\nThe free tier of Google Gemini allows 20 requests per day, and we've reached that limit.\n\nSolutions:\n• Wait 24 hours for the quota to reset\n• Create a new API key at https://makersuite.google.com/app/apikey\n• Upgrade to a paid tier for higher limits\n\nFor now, I'll provide basic assistance with mock responses.";
+      } else {
+        errorText = "Sorry, I'm having trouble connecting to the AI service. Please make sure:\n\n1. Your VITE_GOOGLE_AI_API_KEY is set in the .env file\n2. You've restarted the dev server after adding the API key\n3. Your API key is valid\n\nCheck the browser console for more details.";
+      }
+      
       const errorMessage = {
         id: Date.now() + 1,
-        text: "Sorry, I'm having trouble connecting. Please try again.",
+        text: errorText,
         isUser: false,
         timestamp: new Date(),
         isError: true,

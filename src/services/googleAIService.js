@@ -26,23 +26,35 @@ class GoogleAIService {
     this.conversationHistory = new Map();
     
     // Log initialization status (remove in production)
-    console.log('Google AI Service initialized');
-    console.log('API Key present:', !!this.apiKey);
+    console.log('=== Google AI Service Initialization ===');
+    console.log('API Key:', this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'NOT SET');
     console.log('Model:', this.modelName);
+    console.log('All env vars:', import.meta.env);
+    console.log('=======================================');
   }
 
   initialize() {
+    console.log('=== Initializing Google AI ===');
+    console.log('API Key check:', {
+      exists: !!this.apiKey,
+      value: this.apiKey ? `${this.apiKey.substring(0, 10)}...` : 'undefined/null',
+      isPlaceholder: this.apiKey === 'your_google_ai_api_key_here'
+    });
+    
     if (!this.apiKey || this.apiKey === 'your_google_ai_api_key_here') {
-      console.warn('Google AI API key not configured. Using mock responses.');
+      console.warn('❌ Google AI API key not configured. Using mock responses.');
+      console.warn('Please set VITE_GOOGLE_AI_API_KEY in your .env file and restart the dev server.');
       return false;
     }
 
     try {
+      console.log('✅ Creating Google AI client...');
       this.genAI = new GoogleGenerativeAI(this.apiKey);
       this.model = this.genAI.getGenerativeModel({ model: this.modelName });
+      console.log('✅ Google AI initialized successfully!');
       return true;
     } catch (error) {
-      console.error('Failed to initialize Google AI:', error);
+      console.error('❌ Failed to initialize Google AI:', error);
       return false;
     }
   }
@@ -102,8 +114,12 @@ class GoogleAIService {
       // Check for specific error types
       if (error.message?.includes('API key')) {
         console.error('Invalid API key. Please check your VITE_GOOGLE_AI_API_KEY environment variable.');
-      } else if (error.message?.includes('quota')) {
-        console.error('API quota exceeded. Please check your Google AI usage limits.');
+      } else if (error.message?.includes('quota') || error.message?.includes('429')) {
+        console.error('⚠️ API quota exceeded. The free tier allows 20 requests per day.');
+        console.error('Solutions:');
+        console.error('1. Wait 24 hours for quota reset');
+        console.error('2. Create a new API key at https://makersuite.google.com/app/apikey');
+        console.error('3. Upgrade to paid tier for higher limits');
       } else if (error.message?.includes('model')) {
         console.error('Model not found. Please check your VITE_GOOGLE_AI_MODEL environment variable.');
       }
