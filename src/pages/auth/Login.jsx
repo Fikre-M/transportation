@@ -360,19 +360,19 @@ const Login = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <Box sx={{ color: "white", mb: 4 }}>
-                <Box 
-                  sx={{ 
-                    display: "flex", 
-                    alignItems: "center", 
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
                     mb: 3,
                     cursor: "pointer",
                     transition: "all 0.3s ease",
                     "&:hover": {
                       transform: "translateX(5px)",
                       opacity: 0.9,
-                    }
+                    },
                   }}
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate("/")}
                 >
                   <LocalTaxiIcon sx={{ fontSize: 48, mr: 2 }} />
                   <Typography variant="h3" fontWeight="bold">
@@ -386,10 +386,10 @@ const Login = () => {
                   variant="body1"
                   sx={{ mb: 4, opacity: 0.8, lineHeight: 1.6 }}
                 >
-                  Experience intelligent ride matching, dynamic pricing, and
-                  predictive analytics powered by cutting-edge artificial
-                  intelligence. Join thousands of users who trust our platform
-                  for their daily transportation needs.
+                  Discover smart ride matching, real-time dynamic pricing, and
+                  predictive analytics driven by advanced AI. Join thousands of
+                  users who rely on our platform for their everyday
+                  transportation needs.
                 </Typography>
 
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
