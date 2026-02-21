@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => {
   // Load environment variables
@@ -28,6 +29,148 @@ export default defineConfig(({ mode }) => {
               autoLabel: "dev-only"
             }]
           ],
+        },
+      }),
+      // PWA Plugin
+      VitePWA({
+        registerType: 'prompt',
+        includeAssets: ['favicon.ico', 'taxi.webp', 'robots.txt', 'icons/*.png'],
+        manifest: {
+          name: 'AI Rideshare Platform',
+          short_name: 'AI Rideshare',
+          description: 'AI-powered rideshare platform with smart matching, dynamic pricing, and route optimization',
+          theme_color: '#1976d2',
+          background_color: '#ffffff',
+          display: 'standalone',
+          scope: '/',
+          start_url: '/',
+          orientation: 'portrait-primary',
+          icons: [
+            {
+              src: '/icons/icon-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any maskable'
+            },
+            {
+              src: '/icons/icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
+            }
+          ],
+          categories: ['travel', 'transportation', 'navigation'],
+          shortcuts: [
+            {
+              name: 'Book a Ride',
+              short_name: 'Book',
+              description: 'Quickly book a new ride',
+              url: '/dashboard?action=book',
+              icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192' }]
+            },
+            {
+              name: 'My Trips',
+              short_name: 'Trips',
+              description: 'View your trip history',
+              url: '/dashboard/trips',
+              icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192' }]
+            }
+          ]
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+          runtimeCaching: [
+            {
+              // Cache app shell with CacheFirst strategy
+              urlPattern: /^https:\/\/.*\.(js|css|html)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'app-shell-cache',
+                expiration: {
+                  maxEntries: 60,
+                  maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              // Cache Mapbox tiles with StaleWhileRevalidate
+              urlPattern: /^https:\/\/api\.mapbox\.com\/.*/,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'mapbox-tiles-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              // Cache images with CacheFirst
+              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              // Cache fonts with CacheFirst
+              urlPattern: /\.(?:woff|woff2|ttf|otf)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'fonts-cache',
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              // DO NOT cache OpenAI API responses (dynamic and costly)
+              urlPattern: /^https:\/\/api\.openai\.com\/.*/,
+              handler: 'NetworkOnly',
+            },
+            {
+              // API calls - NetworkFirst with short timeout
+              urlPattern: /^https?:\/\/.*\/api\/.*/,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                networkTimeoutSeconds: 10,
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 5 * 60, // 5 minutes
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+          ],
+          navigateFallback: '/offline.html',
+          navigateFallbackDenylist: [/^\/api/, /^\/auth/],
+          cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true,
+        },
+        devOptions: {
+          enabled: false, // Disable in development for faster HMR
+          type: 'module',
         },
       }),
       // Bundle analyzer - generates stats.html after build

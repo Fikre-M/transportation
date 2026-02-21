@@ -15,7 +15,9 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "prepare": "husky install",
     "analyze": "npm run build && start dist/stats.html",
-    "fix-mui-imports": "node scripts/fix-mui-imports.js"
+    "fix-mui-imports": "node scripts/fix-mui-imports.js",
+    "generate-icons": "node scripts/generate-icons.js",
+    "pwa:test": "npm run build && npm run preview"
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.6",
@@ -116,7 +118,9 @@
     "rollup-plugin-visualizer": "^6.0.5",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
-    "vite": "^5.2.0"
+    "vite": "^5.2.0",
+    "vite-plugin-pwa": "^1.2.0",
+    "workbox-window": "^7.4.0"
   },
   "moduleNameMapper": {
     "^@/(.*)$": "<rootDir>/src/$1",

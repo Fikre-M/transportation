@@ -23,6 +23,8 @@ import { MotionProvider } from "./components/common/OptimizedMotion";
 import { CommandPalette } from "./components/modern/CommandPalette";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import SetupRequired from "./components/onboarding/SetupRequired";
+import InstallPrompt from "./components/pwa/InstallPrompt";
+import UpdatePrompt from "./components/pwa/UpdatePrompt";
 import { useApiKeyStore } from "./stores/apiKeyStore";
 import config from "./config/config";
 import { queryClient } from "./lib/queryClient";
@@ -334,6 +336,12 @@ const AppRoutes = () => {
       
       {/* AI Cost Tracker Widget */}
       <AICostTracker />
+      
+      {/* PWA Install Prompt */}
+      <InstallPrompt />
+      
+      {/* PWA Update Prompt */}
+      <UpdatePrompt />
     </>
   );
 };
