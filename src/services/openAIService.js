@@ -1,6 +1,7 @@
 // OpenAI Service - Real AI integration for rideshare platform
 import OpenAI from 'openai';
 import { useApiKeyStore } from '../stores/apiKeyStore';
+import aiBudgetGuard from './aiBudgetGuard';
 
 class OpenAIService {
   constructor() {
@@ -9,6 +10,7 @@ class OpenAIService {
       total: 0,
       byFeature: {},
     };
+    this.budgetGuard = aiBudgetGuard;
   }
 
   // Initialize OpenAI client with user's API key
@@ -35,7 +37,7 @@ class OpenAIService {
     return this.client;
   }
 
-  // Track token usage
+  // Track token usage (legacy - now uses budget guard)
   trackTokenUsage(feature, usage) {
     if (!usage) return;
 
@@ -46,6 +48,14 @@ class OpenAIService {
       this.tokenUsage.byFeature[feature] = 0;
     }
     this.tokenUsage.byFeature[feature] += tokens;
+    
+    // Also track in budget guard
+    this.budgetGuard.trackUsage(feature, usage);
+  }
+  
+  // Check if request can be made (budget check)
+  canMakeRequest() {
+    return this.budgetGuard.canMakeRequest();
   }
 
   // Get token usage stats
@@ -63,6 +73,11 @@ class OpenAIService {
 
   // SMART MATCHING: Match drivers to passengers with AI reasoning
   async matchDriverToPassenger(drivers, passengerPreferences) {
+    // Check budget before making request
+    if (!this.canMakeRequest()) {
+      throw new Error('AI budget limit exceeded. Please reset or increase your budget limit.');
+    }
+    
     try {
       const client = this.getClient();
 
@@ -125,6 +140,11 @@ Return ONLY valid JSON, no additional text.`;
 
   // DYNAMIC PRICING: Calculate surge pricing with AI
   async calculateDynamicPricing(pricingContext) {
+    // Check budget before making request
+    if (!this.canMakeRequest()) {
+      throw new Error('AI budget limit exceeded. Please reset or increase your budget limit.');
+    }
+    
     try {
       const client = this.getClient();
 
@@ -186,6 +206,11 @@ Return ONLY valid JSON, no additional text.`;
 
   // ROUTE OPTIMIZATION: Analyze routes and recommend best option
   async optimizeRoute(routeOptions, userPreferences) {
+    // Check budget before making request
+    if (!this.canMakeRequest()) {
+      throw new Error('AI budget limit exceeded. Please reset or increase your budget limit.');
+    }
+    
     try {
       const client = this.getClient();
 
@@ -249,6 +274,11 @@ Return ONLY valid JSON, no additional text.`;
 
   // DEMAND PREDICTION: Predict ride demand for next 6 hours
   async predictDemand(demandContext) {
+    // Check budget before making request
+    if (!this.canMakeRequest()) {
+      throw new Error('AI budget limit exceeded. Please reset or increase your budget limit.');
+    }
+    
     try {
       const client = this.getClient();
 
@@ -314,6 +344,11 @@ Return ONLY valid JSON, no additional text.`;
 
   // PREDICTIVE ANALYTICS: Comprehensive business analytics and forecasting
   async getPredictiveAnalytics(analyticsContext) {
+    // Check budget before making request
+    if (!this.canMakeRequest()) {
+      throw new Error('AI budget limit exceeded. Please reset or increase your budget limit.');
+    }
+    
     try {
       const client = this.getClient();
 
@@ -379,6 +414,11 @@ Return ONLY valid JSON, no additional text.`;
 
   // STREAMING CHAT: Stream responses for better UX
   async *streamChatCompletion(messages, options = {}) {
+    // Check budget before making request
+    if (!this.canMakeRequest()) {
+      throw new Error('AI budget limit exceeded. Please reset or increase your budget limit.');
+    }
+    
     try {
       const client = this.getClient();
 

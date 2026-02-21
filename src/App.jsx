@@ -17,7 +17,9 @@ import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import LoadingScreen from "./components/common/LoadingScreen";
 import ScrollToTop from "./components/common/ScrollToTop";
-import ChatBot, { ChatTrigger } from "./components/ai/ChatBot";
+import { LazyChatBot } from "./components/ai/LazyAIComponents";
+import AICostTracker from "./components/ai/AICostTracker";
+import { MotionProvider } from "./components/common/OptimizedMotion";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import SetupRequired from "./components/onboarding/SetupRequired";
 import { useApiKeyStore } from "./stores/apiKeyStore";
@@ -308,8 +310,12 @@ const AppRoutes = () => {
       </Routes>
       
       {/* AI ChatBot - Available globally on all pages */}
-      <ChatTrigger onClick={() => setChatOpen(true)} />
-      <ChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+      <Suspense fallback={null}>
+        <LazyChatBot open={chatOpen} onClose={() => setChatOpen(false)} />
+      </Suspense>
+      
+      {/* AI Cost Tracker Widget */}
+      <AICostTracker />
     </>
   );
 };
@@ -342,25 +348,27 @@ const App = () => {
         <HelmetProvider>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <SnackbarProvider 
-              maxSnack={3}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              autoHideDuration={5000}
-              preventDuplicate
-            >
-              <GlobalErrorHandler>
-                <AuthProvider>
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AppRoutes />
-                  </Suspense>
-                  
-                  <Toaster position="top-right" />
-                </AuthProvider>
-              </GlobalErrorHandler>
-            </SnackbarProvider>
+            <MotionProvider>
+              <SnackbarProvider 
+                maxSnack={3}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                autoHideDuration={5000}
+                preventDuplicate
+              >
+                <GlobalErrorHandler>
+                  <AuthProvider>
+                    <Suspense fallback={<LoadingScreen />}>
+                      <AppRoutes />
+                    </Suspense>
+                    
+                    <Toaster position="top-right" />
+                  </AuthProvider>
+                </GlobalErrorHandler>
+              </SnackbarProvider>
+            </MotionProvider>
           </ThemeProvider>
         </HelmetProvider>
       </Router>

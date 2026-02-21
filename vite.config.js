@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig(({ mode }) => {
   // Load environment variables
@@ -29,7 +30,14 @@ export default defineConfig(({ mode }) => {
           ],
         },
       }),
-    ],
+      // Bundle analyzer - generates stats.html after build
+      mode === "production" && visualizer({
+        filename: "./dist/stats.html",
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+    ].filter(Boolean),
 
     preview: {
       port: 3003,
@@ -69,10 +77,6 @@ export default defineConfig(({ mode }) => {
         "react-router-dom",
         "@emotion/react",
         "@emotion/styled",
-        "@mui/material",
-        "@mui/material/styles",
-        "@mui/icons-material",
-        "@mui/system",
         "jwt-decode",
         "lucide-react",
       ],
@@ -84,17 +88,64 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          manualChunks: {
-            react: ["react", "react-dom", "react-router-dom"],
-            vendor: [
-              "@emotion/react",
-              "@emotion/styled",
-              "@mui/material",
-              "@mui/icons-material",
-              "jwt-decode",
-              "lucide-react",
-            ],
-            // Add other vendor chunks as needed
+          manualChunks: (id) => {
+            // Vendor chunk - React core (highest priority)
+            if (id.includes("node_modules/react/") || 
+                id.includes("node_modules/react-dom/") || 
+                id.includes("node_modules/react-router") ||
+                id.includes("node_modules/scheduler")) {
+              return "vendor";
+            }
+            
+            // Charts chunk - Recharts (before MUI to avoid circular deps)
+            if (id.includes("node_modules/recharts")) {
+              return "charts";
+            }
+            
+            // MUI chunk - Material UI components (after vendor, before charts)
+            if (id.includes("node_modules/@mui")) {
+              return "mui";
+            }
+            
+            // Emotion styling (with MUI)
+            if (id.includes("node_modules/@emotion")) {
+              return "mui";
+            }
+            
+            // Maps chunk - Mapbox and Leaflet
+            if (id.includes("node_modules/mapbox-gl") || 
+                id.includes("node_modules/leaflet") ||
+                id.includes("node_modules/react-map-gl") ||
+                id.includes("node_modules/react-leaflet")) {
+              return "maps";
+            }
+            
+            // AI chunk - OpenAI and Google AI
+            if (id.includes("node_modules/openai") || 
+                id.includes("node_modules/@google/generative-ai")) {
+              return "ai";
+            }
+            
+            // TanStack Query chunk
+            if (id.includes("node_modules/@tanstack/react-query")) {
+              return "query";
+            }
+            
+            // Framer Motion chunk
+            if (id.includes("node_modules/framer-motion")) {
+              return "motion";
+            }
+            
+            // Other large libraries
+            if (id.includes("node_modules/axios") || 
+                id.includes("node_modules/socket.io-client")) {
+              return "utils";
+            }
+            
+            // Date utilities
+            if (id.includes("node_modules/date-fns")) {
+              return "utils";
+            }
           },
         },
       },

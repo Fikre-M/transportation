@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "analyze": "npm run build && start dist/stats.html",
+    "fix-mui-imports": "node scripts/fix-mui-imports.js"
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.6",
